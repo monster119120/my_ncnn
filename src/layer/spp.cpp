@@ -32,7 +32,7 @@ int SPP::load_param(const ParamDict& pd)
     return 0;
 }
 
-int SPP:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int SPP::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     size_t elemsize = bottom_blob.elemsize;
 

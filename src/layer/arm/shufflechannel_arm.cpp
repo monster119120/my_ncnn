@@ -36,7 +36,7 @@ ShuffleChannel_arm::ShuffleChannel_arm()
 #endif
 }
 
-int ShuffleChannel_arm:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int ShuffleChannel_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

@@ -80,7 +80,7 @@ static void crop_pack4_sse(const Mat& src, Mat& dst, int top, int left)
 }
 #endif // __SSE2__
 
-int Crop_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Crop_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int w = bottom_blob.w;
     int h = bottom_blob.h;

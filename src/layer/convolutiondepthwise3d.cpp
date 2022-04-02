@@ -68,7 +68,7 @@ int ConvolutionDepthWise3D::load_model(const ModelBin& mb)
     return 0;
 }
 
-int ConvolutionDepthWise3D:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int ConvolutionDepthWise3D::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int w = bottom_blob.w;
     int h = bottom_blob.h;

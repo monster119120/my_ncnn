@@ -53,7 +53,7 @@ static void crop_pack4_msa(const Mat& src, Mat& dst, int top, int left)
 }
 #endif // __mips_msa
 
-int Crop_mips:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Crop_mips::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int w = bottom_blob.w;
     int h = bottom_blob.h;

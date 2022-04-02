@@ -163,7 +163,7 @@ static int lstm(const Mat& bottom_blob, Mat& top_blob, int reverse, const Mat& w
     return 0;
 }
 
-int LSTM:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int LSTM::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int T = bottom_blob.h;
 

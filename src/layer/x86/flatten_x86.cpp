@@ -29,7 +29,7 @@ Flatten_x86::Flatten_x86()
 #endif // __SSE2__
 }
 
-int Flatten_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Flatten_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

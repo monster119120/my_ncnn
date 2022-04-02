@@ -36,7 +36,7 @@ PixelShuffle_arm::PixelShuffle_arm()
 #endif
 }
 
-int PixelShuffle_arm:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int PixelShuffle_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

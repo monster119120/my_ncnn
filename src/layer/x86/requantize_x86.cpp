@@ -33,7 +33,7 @@ Requantize_x86::Requantize_x86()
 #endif // __SSE2__
 }
 
-int Requantize_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Requantize_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int dims = bottom_blob.dims;
     int elempack = bottom_blob.elempack;

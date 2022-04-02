@@ -23,7 +23,7 @@ Packing_x86::Packing_x86()
     support_packing = true;
 }
 
-int Packing_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Packing_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

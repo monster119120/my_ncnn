@@ -33,7 +33,7 @@ Packing_riscv::Packing_riscv()
     support_bf16_storage = true;
 }
 
-int Packing_riscv:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Packing_riscv::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

@@ -24,7 +24,7 @@ class Reshape_x86 : virtual public Reshape
 public:
     Reshape_x86();
 
-    virtual int  forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
+    virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
 };
 
 } // namespace ncnn

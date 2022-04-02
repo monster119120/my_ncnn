@@ -29,7 +29,7 @@ public:
     virtual int create_pipeline(const Option& opt);
     virtual int destroy_pipeline(const Option& opt);
 
-    virtual int  forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
+    virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
 
 protected:
 #if __ARM_FEATURE_FP16_VECTOR_ARITHMETIC

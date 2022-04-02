@@ -841,7 +841,7 @@ public:
         return ret;
     }
 
-    virtual int  forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+    virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
     {
         ncnn_mat_t top_blob0 = 0;
         int ret = layer->forward_1(layer, (ncnn_mat_t)&bottom_blob, &top_blob0, (ncnn_option_t)&opt);

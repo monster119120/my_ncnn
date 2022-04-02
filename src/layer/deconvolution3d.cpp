@@ -165,7 +165,7 @@ static int deconvolution3d(const Mat& bottom_blob, Mat& top_blob, const Mat& wei
     return 0;
 }
 
-int Deconvolution3D:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Deconvolution3D::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int w = bottom_blob.w;
     int h = bottom_blob.h;
