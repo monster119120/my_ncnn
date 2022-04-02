@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <vector>
 
-#define YOLOV5_V60 1 //YOLOv5 v6.0
+#define YOLOV5_V60 0 //YOLOv5 v6.0
 
 #if YOLOV5_V60
 #define MAX_STRIDE 64
@@ -282,8 +282,8 @@ static int detect_yolov5(const cv::Mat& bgr, std::vector<Object>& objects)
 #else
     yolov5.register_custom_layer("YoloV5Focus", YoloV5Focus_layer_creator);
 
-    yolov5.load_param("yolov5s.param");
-    yolov5.load_model("yolov5s.bin");
+    yolov5.load_param("../../examples/yolov5s.param");
+    yolov5.load_model("../../examples/yolov5s.bin");
 #endif
 
     const int target_size = 640;
@@ -498,7 +498,7 @@ int main(int argc, char** argv)
     std::vector<Object> objects;
     detect_yolov5(m, objects);
 
-    draw_objects(m, objects);
+//    draw_objects(m, objects);
 
     return 0;
 }

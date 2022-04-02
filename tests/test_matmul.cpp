@@ -14,6 +14,7 @@
 
 #include "layer/matmul.h"
 #include "testutil.h"
+#include <iostream>
 
 static int test_matmul(const ncnn::Mat& a, const ncnn::Mat& b)
 {
@@ -234,6 +235,37 @@ static int test_matmul_15()
 int main()
 {
     SRAND(7767517);
+
+//    ncnn::Mat m(5);
+//    fprintf(stderr, "dims=%d w=%d h=%d c=%d",m.dims, m.w, m.h, m.c);
+
+//    ncnn::Mat m(2, 3, 5);
+//    for (int i=0; i<m.total(); i++){
+//        m[i] = i + 1;
+//    }
+//
+//    for (int i=0; i<5; i++){    // 每个channel
+//        ncnn::Mat middle = m.channel(i);     // channel内的数据放到一维数组了
+//        float* ptr = (float*) middle;
+//        for (int j=0; j<middle.cstep; ++j){
+//            std::cout<< ptr[j] <<" ";
+//        }
+//        std::cout << std::endl;
+//    }
+//
+//    int *p = new int[6];
+//
+//    // 输出地址
+//    size_t x = (size_t)p;
+//    std::cout << x << std::endl;
+//    assert(x % 16 == 0);
+    ncnn::Mat last_x;
+//    std::cout<< last_x.total() <<std::endl;
+    last_x.create(10, 10, 3);
+//    std::cout<< last_x.total() <<std::endl;
+
+    ncnn::Mat m = last_x.clone();
+    std::cout<< m.total() <<std::endl;
 
     return 0
            || test_matmul_0()

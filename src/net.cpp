@@ -2569,7 +2569,9 @@ int Extractor::extract(int blob_index, Mat& feat, int type)
             ret = d->net->d->forward_layer(layer_index, d->blob_mats, d->opt);
         }
 #else
+        fprintf(stderr, "start forward\n");
         ret = d->net->d->forward_layer(layer_index, d->blob_mats, d->opt);
+        fprintf(stderr, "end forward\n");
 #endif // NCNN_VULKAN
     }
 
