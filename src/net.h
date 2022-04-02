@@ -54,7 +54,7 @@ public:
     // set gpu device by device handle, no owner transfer
     void set_vulkan_device(const VulkanDevice* vkdev);
 
-    const VulkanDevice* vulkan_device() ;
+    const VulkanDevice* vulkan_device();
 #endif // NCNN_VULKAN
 
 #if NCNN_STRING
@@ -127,18 +127,18 @@ public:
     void clear();
 
     // construct an Extractor from network
-    Extractor create_extractor() ;
+    Extractor create_extractor();
 
     // get input/output indexes/names
-    const std::vector<int>& input_indexes() ;
-    const std::vector<int>& output_indexes() ;
+    const std::vector<int>& input_indexes();
+    const std::vector<int>& output_indexes();
 #if NCNN_STRING
-    const std::vector<const char*>& input_names() ;
-    const std::vector<const char*>& output_names() ;
+    const std::vector<const char*>& input_names();
+    const std::vector<const char*>& output_names();
 #endif
 
-    const std::vector<Blob>& blobs() ;
-    const std::vector<Layer*>& layers() ;
+    const std::vector<Blob>& blobs();
+    const std::vector<Layer*>& layers();
 
     std::vector<Blob>& mutable_blobs();
     std::vector<Layer*>& mutable_layers();
@@ -146,8 +146,8 @@ public:
 protected:
     friend class Extractor;
 #if NCNN_STRING
-    int find_blob_index_by_name(const char* name) ;
-    int find_layer_index_by_name(const char* name) ;
+    int find_blob_index_by_name(const char* name);
+    int find_layer_index_by_name(const char* name);
     virtual Layer* create_custom_layer(const char* type);
 #endif // NCNN_STRING
     virtual Layer* create_custom_layer(int index);
@@ -260,7 +260,7 @@ public:
 #endif // NCNN_VULKAN
 
 protected:
-    friend Extractor Net::create_extractor() ;
+    friend Extractor Net::create_extractor();
     Extractor(Net* net, size_t blob_count);
 
 private:

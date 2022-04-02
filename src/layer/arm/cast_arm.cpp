@@ -34,7 +34,7 @@ Cast_arm::Cast_arm()
     support_bf16_storage = true;
 }
 
-int Cast_arm:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Cast_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     if (type_from == type_to)
     {

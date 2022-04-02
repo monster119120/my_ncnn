@@ -208,7 +208,7 @@ static int deconvolutiondepthwise(const Mat& bottom_blob, Mat& top_blob, const M
     return 0;
 }
 
-int DeconvolutionDepthWise:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int DeconvolutionDepthWise::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int w = bottom_blob.w;
     int h = bottom_blob.h;

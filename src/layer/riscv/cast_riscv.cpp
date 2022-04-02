@@ -34,7 +34,7 @@ Cast_riscv::Cast_riscv()
 #endif // __riscv_vector
 }
 
-int Cast_riscv:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Cast_riscv::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     if (type_from == type_to)
     {

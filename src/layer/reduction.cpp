@@ -1141,7 +1141,7 @@ struct reduction_op_min
     }
 };
 
-int Reduction:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Reduction::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int dims = bottom_blob.dims;
     int axes_flag[4] = {0};

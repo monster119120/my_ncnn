@@ -58,7 +58,7 @@ int Pooling_arm::create_pipeline(const Option& /*opt*/)
     return 0;
 }
 
-int Pooling_arm:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Pooling_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     if (adaptive_pooling)
     {

@@ -128,10 +128,9 @@ int Convolution::create_pipeline(const Option& opt)
     return 0;
 }
 
-
 static int convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_data, const Mat& bias_data, int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h, int activation_type, const Mat& activation_params, const Option& opt)
 {
-//    fprintf(stderr, "raw raw conv conv\n");
+    //    fprintf(stderr, "raw raw conv conv\n");
     const int w = bottom_blob.w;
     const int inch = bottom_blob.c;
 
@@ -254,7 +253,8 @@ static int convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_
                     kptr += maxk;
                 }
                 outptr[j] = activation_ss(y_kij, activation_type, activation_params);
-                if (outptr[j] <= 0.0){
+                if (outptr[j] <= 0.0)
+                {
                     count += 1;
                 }
                 total += 1;
@@ -262,7 +262,7 @@ static int convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_
         }
     }
 
-//    fprintf(stderr, "percent of 0 is %f\n", count/total);
+    //    fprintf(stderr, "percent of 0 is %f\n", count/total);
 
     return 0;
 }

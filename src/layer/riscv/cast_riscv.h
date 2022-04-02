@@ -24,7 +24,7 @@ class Cast_riscv : virtual public Cast
 public:
     Cast_riscv();
 
-    virtual int  forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
+    virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
 };
 
 } // namespace ncnn

@@ -225,7 +225,7 @@ int GRU_riscv::create_pipeline(const Option& opt)
     return GRU::create_pipeline(opt);
 }
 
-int GRU_riscv:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int GRU_riscv::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 #if __riscv_vector

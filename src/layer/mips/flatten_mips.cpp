@@ -28,7 +28,7 @@ Flatten_mips::Flatten_mips()
 #endif // __mips_msa
 }
 
-int Flatten_mips:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Flatten_mips::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

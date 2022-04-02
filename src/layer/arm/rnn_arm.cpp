@@ -299,7 +299,7 @@ static int rnn(const Mat& bottom_blob, Mat& top_blob, int reverse, const Mat& we
     return 0;
 }
 
-int RNN_arm:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int RNN_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

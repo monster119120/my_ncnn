@@ -423,7 +423,7 @@ static void resize_bicubic_image(const Mat& src, Mat& dst, float* alpha, int* xo
     }
 }
 
-int Interp:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Interp::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int w = bottom_blob.w;
     int h = bottom_blob.h;

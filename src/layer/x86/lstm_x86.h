@@ -26,7 +26,7 @@ public:
 
     virtual int create_pipeline(const Option& opt);
 
-    virtual int  forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
+    virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
 
     virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt);
 
