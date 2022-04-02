@@ -23,7 +23,7 @@ DeepCopy::DeepCopy()
     support_packing = true;
 }
 
-int DeepCopy::forward(const Mat& bottom_blob, Mat& top_blob, const Option& /*opt*/) const
+int DeepCopy::forward(const Mat& bottom_blob, Mat& top_blob, const Option& /*opt*/)
 {
     top_blob = bottom_blob.clone();
     if (top_blob.empty())

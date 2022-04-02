@@ -147,7 +147,7 @@ static int deconvolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weigh
     return 0;
 }
 
-int Deconvolution::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Deconvolution:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int w = bottom_blob.w;
     int h = bottom_blob.h;

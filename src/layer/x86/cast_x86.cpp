@@ -63,7 +63,7 @@ Cast_x86::Cast_x86()
     support_packing = true;
 }
 
-int Cast_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Cast_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     if (type_from == type_to)
     {

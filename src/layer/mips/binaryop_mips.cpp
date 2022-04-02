@@ -1040,7 +1040,7 @@ MAKE_FUNCTION(binary_op_rdiv_pack4, __msa_fdiv_w(y, x))
 } // namespace BinaryOp_mips_functor
 #endif // __mips_msa
 
-int BinaryOp_mips::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int BinaryOp_mips::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     const Mat& bottom_blob = bottom_blobs[0];
     const Mat& bottom_blob1 = bottom_blobs[1];

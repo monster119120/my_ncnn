@@ -110,7 +110,7 @@ static int deconvolution1d(const Mat& bottom_blob, Mat& top_blob, const Mat& wei
     return 0;
 }
 
-int Deconvolution1D::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Deconvolution1D:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int w = bottom_blob.w;
     size_t elemsize = bottom_blob.elemsize;

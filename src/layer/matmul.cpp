@@ -79,7 +79,7 @@ static void matmul_transb(const Mat& A, const Mat& B, Mat& top_blob, const Optio
     }
 }
 
-int MatMul::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int MatMul::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     const Mat& A = bottom_blobs[0];
     const Mat& B = bottom_blobs[1];

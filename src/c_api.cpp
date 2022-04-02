@@ -822,7 +822,7 @@ public:
         return layer->destroy_pipeline(layer, (ncnn_option_t)&opt);
     }
 
-    virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+    virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
     {
         const int n = bottom_blobs.size();
         const int n2 = top_blobs.size();
@@ -841,7 +841,7 @@ public:
         return ret;
     }
 
-    virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+    virtual int  forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
     {
         ncnn_mat_t top_blob0 = 0;
         int ret = layer->forward_1(layer, (ncnn_mat_t)&bottom_blob, &top_blob0, (ncnn_option_t)&opt);
@@ -893,7 +893,7 @@ static int __ncnn_Layer_destroy_pipeline(ncnn_layer_t layer, const ncnn_option_t
 static int __ncnn_Layer_forward_1(const ncnn_layer_t layer, const ncnn_mat_t bottom_blob, ncnn_mat_t* top_blob, const ncnn_option_t opt)
 {
     Mat _top_blob;
-    int ret = ((const Layer*)layer->pthis)->Layer::forward(*(const Mat*)bottom_blob, _top_blob, *(const Option*)opt);
+    int ret = ((Layer*)layer->pthis)->Layer::forward(*(const Mat*)bottom_blob, _top_blob, *(const Option*)opt);
     *top_blob = (ncnn_mat_t)(new Mat(_top_blob));
     return ret;
 }
@@ -906,7 +906,7 @@ static int __ncnn_Layer_forward_n(const ncnn_layer_t layer, const ncnn_mat_t* bo
     {
         _bottom_blobs[i] = *(Mat*)bottom_blobs[i];
     }
-    int ret = ((const Layer*)layer->pthis)->Layer::forward(_bottom_blobs, _top_blobs, *(const Option*)opt);
+    int ret = ((Layer*)layer->pthis)->Layer::forward(_bottom_blobs, _top_blobs, *(const Option*)opt);
     for (int i = 0; i < n2; i++)
     {
         top_blobs[i] = (ncnn_mat_t)(new Mat(_top_blobs[i]));
@@ -952,7 +952,7 @@ static int __ncnn_layer_destroy_pipeline(ncnn_layer_t layer, const ncnn_option_t
 static int __ncnn_layer_forward_1(const ncnn_layer_t layer, const ncnn_mat_t bottom_blob, ncnn_mat_t* top_blob, const ncnn_option_t opt)
 {
     Mat _top_blob;
-    int ret = ((const Layer*)layer->pthis)->forward(*(const Mat*)bottom_blob, _top_blob, *(const Option*)opt);
+    int ret = ((Layer*)layer->pthis)->forward(*(const Mat*)bottom_blob, _top_blob, *(const Option*)opt);
     *top_blob = (ncnn_mat_t)(new Mat(_top_blob));
     return ret;
 }
@@ -965,7 +965,7 @@ static int __ncnn_layer_forward_n(const ncnn_layer_t layer, const ncnn_mat_t* bo
     {
         _bottom_blobs[i] = *(Mat*)bottom_blobs[i];
     }
-    int ret = ((const Layer*)layer->pthis)->forward(_bottom_blobs, _top_blobs, *(const Option*)opt);
+    int ret = ((Layer*)layer->pthis)->forward(_bottom_blobs, _top_blobs, *(const Option*)opt);
     for (int i = 0; i < n2; i++)
     {
         top_blobs[i] = (ncnn_mat_t)(new Mat(_top_blobs[i]));

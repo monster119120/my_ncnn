@@ -30,7 +30,7 @@ Concat_arm::Concat_arm()
 #endif
 }
 
-int Concat_arm::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int Concat_arm::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     int elembits = bottom_blobs[0].elembits();
 

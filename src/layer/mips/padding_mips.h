@@ -24,7 +24,7 @@ class Padding_mips : virtual public Padding
 public:
     Padding_mips();
 
-    virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const;
+    virtual int  forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
 
 protected:
     int forward_int8(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const;

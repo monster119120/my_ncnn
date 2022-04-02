@@ -46,7 +46,7 @@ int PriorBox::load_param(const ParamDict& pd)
     return 0;
 }
 
-int PriorBox::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int PriorBox::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     int w = bottom_blobs[0].w;
     int h = bottom_blobs[0].h;

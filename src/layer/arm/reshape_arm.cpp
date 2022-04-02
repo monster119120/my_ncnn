@@ -34,7 +34,7 @@ Reshape_arm::Reshape_arm()
 #endif
 }
 
-int Reshape_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Reshape_arm:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

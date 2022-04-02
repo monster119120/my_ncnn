@@ -45,7 +45,7 @@ int Pooling_mips::create_pipeline(const Option& /*opt*/)
     return 0;
 }
 
-int Pooling_mips::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Pooling_mips:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     if (adaptive_pooling)
     {

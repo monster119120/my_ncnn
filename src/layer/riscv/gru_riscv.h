@@ -24,8 +24,8 @@ class GRU_riscv : virtual public GRU
 public:
     GRU_riscv();
 
-    virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const;
-    virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const;
+    virtual int  forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
+    virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt);
     virtual int create_pipeline(const Option& opt);
 
 protected:

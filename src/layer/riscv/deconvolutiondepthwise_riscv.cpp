@@ -188,7 +188,7 @@ int DeconvolutionDepthWise_riscv::destroy_pipeline(const Option& opt)
     return 0;
 }
 
-int DeconvolutionDepthWise_riscv::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int DeconvolutionDepthWise_riscv:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

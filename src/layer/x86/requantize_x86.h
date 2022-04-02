@@ -24,7 +24,7 @@ class Requantize_x86 : virtual public Requantize
 public:
     Requantize_x86();
 
-    virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const;
+    virtual int  forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
 };
 
 } // namespace ncnn

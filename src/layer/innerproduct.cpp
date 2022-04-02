@@ -96,7 +96,7 @@ int InnerProduct::create_pipeline(const Option& opt)
     return 0;
 }
 
-int InnerProduct::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int InnerProduct:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
 #if NCNN_INT8
     if (opt.use_int8_inference && weight_data.elemsize == (size_t)1u)

@@ -40,7 +40,7 @@ public:
         one_blob_only = true;
     }
 
-    virtual int forward(const ncnn::Mat& bottom_blob, ncnn::Mat& top_blob, const ncnn::Option& opt) const
+    virtual int forward(const ncnn::Mat& bottom_blob, ncnn::Mat& top_blob, const ncnn::Option& opt)
     {
         int w = bottom_blob.w;
         int h = bottom_blob.h;

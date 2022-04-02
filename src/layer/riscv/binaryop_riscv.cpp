@@ -1191,7 +1191,7 @@ MAKE_FUNCTION(binary_op_rdiv_rvv, vfdiv_vv_f32m8(y, x, vl), vfrdiv_vf_f32m8(x, y
 } // namespace BinaryOp_riscv_functor
 #endif
 
-int BinaryOp_riscv::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int BinaryOp_riscv::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     int elembits = std::max(bottom_blobs[0].elembits(), bottom_blobs[1].elembits());
 #if __riscv_vector && __riscv_zfh

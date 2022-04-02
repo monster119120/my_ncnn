@@ -170,7 +170,7 @@ int DeconvolutionDepthWise_mips::destroy_pipeline(const Option& opt)
     return 0;
 }
 
-int DeconvolutionDepthWise_mips::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int DeconvolutionDepthWise_mips:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     // convolv with NxN kernel
     // value = value + bias

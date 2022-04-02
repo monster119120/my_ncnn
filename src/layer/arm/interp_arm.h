@@ -24,7 +24,7 @@ class Interp_arm : virtual public Interp
 public:
     Interp_arm();
 
-    virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const;
+    virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt);
 
 protected:
 #if __ARM_FEATURE_FP16_VECTOR_ARITHMETIC

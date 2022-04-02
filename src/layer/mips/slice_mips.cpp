@@ -23,7 +23,7 @@ Slice_mips::Slice_mips()
 #endif // __mips_msa
 }
 
-int Slice_mips::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int Slice_mips::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     const Mat& bottom_blob = bottom_blobs[0];
     int dims = bottom_blob.dims;

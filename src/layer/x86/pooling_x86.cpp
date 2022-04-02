@@ -56,7 +56,7 @@ int Pooling_x86::create_pipeline(const Option& /*opt*/)
     return 0;
 }
 
-int Pooling_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Pooling_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     // max value in NxN window
     // avg value in NxN window

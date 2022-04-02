@@ -162,7 +162,7 @@ static int deconvolutiondepthwise1d(const Mat& bottom_blob, Mat& top_blob, const
     return 0;
 }
 
-int DeconvolutionDepthWise1D::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int DeconvolutionDepthWise1D:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int w = bottom_blob.w;
     size_t elemsize = bottom_blob.elemsize;

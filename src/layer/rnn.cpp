@@ -109,7 +109,7 @@ static int rnn(const Mat& bottom_blob, Mat& top_blob, int reverse, const Mat& we
     return 0;
 }
 
-int RNN::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int RNN:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int T = bottom_blob.h;
 
@@ -168,7 +168,7 @@ int RNN::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
     return 0;
 }
 
-int RNN::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int RNN::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     const Mat& bottom_blob = bottom_blobs[0];
     int T = bottom_blob.h;

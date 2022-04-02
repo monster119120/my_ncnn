@@ -282,7 +282,7 @@ static void copy_make_border_image(const Mat& src, Mat& dst, int top, int left, 
     }
 }
 
-int Padding::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Padding:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     if (top == 0 && bottom == 0 && left == 0 && right == 0 && front == 0 && behind == 0)
     {

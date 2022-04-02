@@ -49,19 +49,19 @@ public:
 #endif // NCNN_VULKAN
 
     friend class Extractor;
-    int forward_layer(int layer_index, std::vector<Mat>& blob_mats, const Option& opt) const;
+    int forward_layer(int layer_index, std::vector<Mat>& blob_mats, const Option& opt);
 
 #if NCNN_VULKAN
-    int forward_layer(int layer_index, std::vector<Mat>& blob_mats, std::vector<VkMat>& blob_mats_gpu, VkCompute& cmd, const Option& opt) const;
-    int forward_layer(int layer_index, std::vector<Mat>& blob_mats, std::vector<VkMat>& blob_mats_gpu, std::vector<VkImageMat>& blob_mats_gpu_image, VkCompute& cmd, const Option& opt) const;
+    int forward_layer(int layer_index, std::vector<Mat>& blob_mats, std::vector<VkMat>& blob_mats_gpu, VkCompute& cmd, const Option& opt);
+    int forward_layer(int layer_index, std::vector<Mat>& blob_mats, std::vector<VkMat>& blob_mats_gpu, std::vector<VkImageMat>& blob_mats_gpu_image, VkCompute& cmd, const Option& opt);
 #endif // NCNN_VULKAN
 
-    int convert_layout(Mat& bottom_blob, const Layer* layer, const Option& opt) const;
+    int convert_layout(Mat& bottom_blob, Layer* layer, const Option& opt);
 
-    int do_forward_layer(const Layer* layer, std::vector<Mat>& blob_mats, const Option& opt) const;
+    int do_forward_layer(Layer* layer, std::vector<Mat>& blob_mats, const Option& opt);
 #if NCNN_VULKAN
-    int do_forward_layer(const Layer* layer, std::vector<VkMat>& blob_mats_gpu, VkCompute& cmd, const Option& opt) const;
-    int do_forward_layer(const Layer* layer, std::vector<VkImageMat>& blob_mats_gpu_image, VkCompute& cmd, const Option& opt) const;
+    int do_forward_layer(Layer* layer, std::vector<VkMat>& blob_mats_gpu, VkCompute& cmd, const Option& opt);
+    int do_forward_layer(Layer* layer, std::vector<VkImageMat>& blob_mats_gpu_image, VkCompute& cmd, const Option& opt);
 #endif // NCNN_VULKAN
 
     void update_input_output_indexes();
@@ -147,9 +147,8 @@ int NetPrivate::upload_model()
 }
 #endif // NCNN_VULKAN
 
-int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, const Option& opt) const
-{
-    const Layer* layer = layers[layer_index];
+int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, const Option& opt){
+    Layer* layer = layers[layer_index];
 
     //     NCNN_LOGE("forward_layer %d %s", layer_index, layer->name.c_str());
 
@@ -219,9 +218,8 @@ int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, cons
 }
 
 #if NCNN_VULKAN
-int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, std::vector<VkMat>& blob_mats_gpu, VkCompute& cmd, const Option& opt) const
-{
-    const Layer* layer = layers[layer_index];
+int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, std::vector<VkMat>& blob_mats_gpu, VkCompute& cmd, const Option& opt){
+    Layer* layer = layers[layer_index];
 
     //     NCNN_LOGE("forward_layer %d %d %s", layer->support_vulkan, layer_index, layer->name.c_str());
 
@@ -390,9 +388,8 @@ int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, std:
     return 0;
 }
 
-int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, std::vector<VkMat>& blob_mats_gpu, std::vector<VkImageMat>& blob_mats_gpu_image, VkCompute& cmd, const Option& opt) const
-{
-    const Layer* layer = layers[layer_index];
+int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, std::vector<VkMat>& blob_mats_gpu, std::vector<VkImageMat>& blob_mats_gpu_image, VkCompute& cmd, const Option& opt){
+    Layer* layer = layers[layer_index];
 
     //     NCNN_LOGE("forward_layer %d %d %s", layer->support_vulkan, layer_index, layer->name.c_str());
 
@@ -726,8 +723,7 @@ IMAGE_ALLOCATION_FAILED:
 }
 #endif // NCNN_VULKAN
 
-int NetPrivate::convert_layout(Mat& bottom_blob, const Layer* layer, const Option& opt) const
-{
+int NetPrivate::convert_layout(Mat& bottom_blob, Layer* layer, const Option& opt){
     // clang-format off
     // *INDENT-OFF*
 #if NCNN_ARM82
@@ -860,8 +856,7 @@ int NetPrivate::convert_layout(Mat& bottom_blob, const Layer* layer, const Optio
     return 0;
 }
 
-int NetPrivate::do_forward_layer(const Layer* layer, std::vector<Mat>& blob_mats, const Option& opt) const
-{
+int NetPrivate::do_forward_layer(Layer* layer, std::vector<Mat>& blob_mats, const Option& opt){
     if (layer->one_blob_only)
     {
         int bottom_blob_index = layer->bottoms[0];
@@ -987,8 +982,7 @@ int NetPrivate::do_forward_layer(const Layer* layer, std::vector<Mat>& blob_mats
 }
 
 #if NCNN_VULKAN
-int NetPrivate::do_forward_layer(const Layer* layer, std::vector<VkMat>& blob_mats_gpu, VkCompute& cmd, const Option& opt) const
-{
+int NetPrivate::do_forward_layer(Layer* layer, std::vector<VkMat>& blob_mats_gpu, VkCompute& cmd, const Option& opt){
     if (layer->one_blob_only)
     {
         // load bottom blob
@@ -1113,8 +1107,7 @@ int NetPrivate::do_forward_layer(const Layer* layer, std::vector<VkMat>& blob_ma
     return 0;
 }
 
-int NetPrivate::do_forward_layer(const Layer* layer, std::vector<VkImageMat>& blob_mats_gpu_image, VkCompute& cmd, const Option& opt) const
-{
+int NetPrivate::do_forward_layer(Layer* layer, std::vector<VkImageMat>& blob_mats_gpu_image, VkCompute& cmd, const Option& opt){
     if (layer->one_blob_only)
     {
         // load bottom blob
@@ -2122,40 +2115,33 @@ void Net::clear()
 #endif // NCNN_VULKAN
 }
 
-Extractor Net::create_extractor() const
-{
+Extractor Net::create_extractor(){
     return Extractor(this, d->blobs.size());
 }
 
-const std::vector<int>& Net::input_indexes() const
-{
+const std::vector<int>& Net::input_indexes(){
     return d->input_blob_indexes;
 }
 
-const std::vector<int>& Net::output_indexes() const
-{
+const std::vector<int>& Net::output_indexes(){
     return d->output_blob_indexes;
 }
 
 #if NCNN_STRING
-const std::vector<const char*>& Net::input_names() const
-{
+const std::vector<const char*>& Net::input_names(){
     return d->input_blob_names;
 }
 
-const std::vector<const char*>& Net::output_names() const
-{
+const std::vector<const char*>& Net::output_names(){
     return d->output_blob_names;
 }
 #endif
 
-const std::vector<Blob>& Net::blobs() const
-{
+const std::vector<Blob>& Net::blobs(){
     return d->blobs;
 }
 
-const std::vector<Layer*>& Net::layers() const
-{
+const std::vector<Layer*>& Net::layers(){
     return d->layers;
 }
 
@@ -2180,15 +2166,13 @@ void Net::set_vulkan_device(const VulkanDevice* _vkdev)
     d->vkdev = _vkdev;
 }
 
-const VulkanDevice* Net::vulkan_device() const
-{
+const VulkanDevice* Net::vulkan_device(){
     return d->vkdev;
 }
 #endif // NCNN_VULKAN
 
 #if NCNN_STRING
-int Net::find_blob_index_by_name(const char* name) const
-{
+int Net::find_blob_index_by_name(const char* name){
     for (size_t i = 0; i < d->blobs.size(); i++)
     {
         const Blob& blob = d->blobs[i];
@@ -2202,11 +2186,10 @@ int Net::find_blob_index_by_name(const char* name) const
     return -1;
 }
 
-int Net::find_layer_index_by_name(const char* name) const
-{
+int Net::find_layer_index_by_name(const char* name){
     for (size_t i = 0; i < d->layers.size(); i++)
     {
-        const Layer* layer = d->layers[i];
+        Layer* layer = d->layers[i];
         if (layer->name == name)
         {
             return static_cast<int>(i);
@@ -2257,11 +2240,11 @@ Layer* Net::create_custom_layer(int index)
 class ExtractorPrivate
 {
 public:
-    ExtractorPrivate(const Net* _net)
+    ExtractorPrivate(Net* _net)
         : net(_net)
     {
     }
-    const Net* net;
+    Net* net;
     std::vector<Mat> blob_mats;
     Option opt;
 
@@ -2274,7 +2257,7 @@ public:
 #endif // NCNN_VULKAN
 };
 
-Extractor::Extractor(const Net* _net, size_t blob_count)
+Extractor::Extractor(Net* _net, size_t blob_count)
     : d(new ExtractorPrivate(_net))
 {
     d->blob_mats.resize(blob_count);

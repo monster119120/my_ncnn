@@ -112,7 +112,7 @@ int InnerProduct_x86::destroy_pipeline(const Option& opt)
     return 0;
 }
 
-int InnerProduct_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int InnerProduct_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
 #if NCNN_INT8
     if (opt.use_int8_inference && weight_data.elemsize == (size_t)1u)

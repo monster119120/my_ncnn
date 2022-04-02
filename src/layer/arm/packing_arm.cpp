@@ -30,7 +30,7 @@ Packing_arm::Packing_arm()
     support_bf16_storage = true;
 }
 
-int Packing_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Packing_arm:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

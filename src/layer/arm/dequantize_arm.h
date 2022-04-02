@@ -24,7 +24,7 @@ class Dequantize_arm : virtual public Dequantize
 public:
     Dequantize_arm();
 
-    virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const;
+    virtual int  forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
 
 protected:
 #if __ARM_FEATURE_FP16_VECTOR_ARITHMETIC

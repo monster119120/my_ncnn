@@ -30,7 +30,7 @@ Slice_arm::Slice_arm()
 #endif
 }
 
-int Slice_arm::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int Slice_arm::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     int elembits = bottom_blobs[0].elembits();
 

@@ -39,7 +39,7 @@ Quantize_arm::Quantize_arm()
 #endif
 }
 
-int Quantize_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Quantize_arm:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

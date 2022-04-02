@@ -30,7 +30,7 @@ Slice_x86::Slice_x86()
 #endif // __SSE2__
 }
 
-int Slice_x86::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int Slice_x86::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     const Mat& bottom_blob = bottom_blobs[0];
     int dims = bottom_blob.dims;

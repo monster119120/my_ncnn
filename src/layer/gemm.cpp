@@ -32,7 +32,7 @@ int Gemm::load_param(const ParamDict& pd)
     return 0;
 }
 
-int Gemm::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int Gemm::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     const Mat& A0 = bottom_blobs[0];
     const Mat& B0 = bottom_blobs[1];

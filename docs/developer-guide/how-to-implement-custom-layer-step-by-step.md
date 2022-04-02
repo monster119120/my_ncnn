@@ -162,7 +162,7 @@ int MyLayer::load_model(const ModelBin& mb)
 // The base class Layer defines four interfaces for each forward behavior combination
 
 // 1
-virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const;
+virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt);
 
 // 2
 virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const;

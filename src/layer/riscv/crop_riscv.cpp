@@ -94,7 +94,7 @@ static void crop_packn_bf16_fp16s_rvv(const Mat& src, Mat& dst, int top, int lef
 }
 #endif // __riscv_vector
 
-int Crop_riscv::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Crop_riscv:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 
@@ -270,7 +270,7 @@ int Crop_riscv::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt
     return Crop::forward(bottom_blob_unpacked, top_blob, opt);
 }
 
-int Crop_riscv::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int Crop_riscv::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     const Mat& bottom_blob = bottom_blobs[0];
     const Mat& reference_blob = bottom_blobs[1];

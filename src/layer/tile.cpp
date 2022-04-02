@@ -31,7 +31,7 @@ int Tile::load_param(const ParamDict& pd)
     return 0;
 }
 
-int Tile::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Tile:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int dims = bottom_blob.dims;
     int repeat_w = 1;

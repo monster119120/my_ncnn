@@ -384,7 +384,7 @@ static int lstm(const Mat& bottom_blob, Mat& top_blob, int reverse, const Mat& w
 }
 #endif
 
-int LSTM_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int LSTM_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
 #if __AVX__
     int T = bottom_blob.h;
@@ -452,7 +452,7 @@ int LSTM_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) 
 #endif
 }
 
-int LSTM_x86::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int LSTM_x86::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
 #if __AVX__
     const Mat& bottom_blob = bottom_blobs[0];

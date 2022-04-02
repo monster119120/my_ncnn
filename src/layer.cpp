@@ -85,7 +85,7 @@ int Layer::destroy_pipeline(const Option& /*opt*/)
     return 0;
 }
 
-int Layer::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int Layer::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     if (!support_inplace)
         return -1;
@@ -101,7 +101,7 @@ int Layer::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_b
     return forward_inplace(top_blobs, opt);
 }
 
-int Layer::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Layer::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     if (!support_inplace)
         return -1;

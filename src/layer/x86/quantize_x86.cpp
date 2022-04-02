@@ -34,7 +34,7 @@ Quantize_x86::Quantize_x86()
 #endif // __SSE2__
 }
 
-int Quantize_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Quantize_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int dims = bottom_blob.dims;
     int elempack = bottom_blob.elempack;

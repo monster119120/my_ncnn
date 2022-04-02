@@ -42,7 +42,7 @@ int Pooling1D::load_param(const ParamDict& pd)
     return 0;
 }
 
-int Pooling1D::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Pooling1D:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int w = bottom_blob.w;
     int h = bottom_blob.h;

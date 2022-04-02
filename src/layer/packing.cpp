@@ -36,7 +36,7 @@ int Packing::load_param(const ParamDict& pd)
     return 0;
 }
 
-int Packing::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Packing:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elempack = bottom_blob.elempack;
 

@@ -455,7 +455,7 @@ int Convolution_arm::destroy_pipeline(const Option& opt)
     return 0;
 }
 
-int Convolution_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Convolution_arm:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     fprintf(stderr, "arm conv\n");
 #if NCNN_INT8
@@ -980,7 +980,7 @@ int Convolution_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option
     return 0;
 }
 
-int Convolution_arm::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int Convolution_arm::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     const Mat& bottom_blob = bottom_blobs[0];
     const Mat& _weight_data = bottom_blobs[1];

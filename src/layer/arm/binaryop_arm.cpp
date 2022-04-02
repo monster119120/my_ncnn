@@ -1028,7 +1028,7 @@ MAKE_FUNCTION(binary_op_rdiv_pack4, div_ps(y, x))
 } // namespace BinaryOp_arm_functor
 #endif // __ARM_NEON
 
-int BinaryOp_arm::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int BinaryOp_arm::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     int elembits = std::max(bottom_blobs[0].elembits(), bottom_blobs[1].elembits());
 

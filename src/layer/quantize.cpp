@@ -48,7 +48,7 @@ static inline signed char float2int8(float v)
     return (signed char)int32;
 }
 
-int Quantize::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Quantize:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int dims = bottom_blob.dims;
 

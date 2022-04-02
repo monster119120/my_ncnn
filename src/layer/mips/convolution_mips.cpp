@@ -182,7 +182,7 @@ int Convolution_mips::destroy_pipeline(const Option& opt)
     return 0;
 }
 
-int Convolution_mips::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Convolution_mips:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
 #if NCNN_INT8
     if (opt.use_int8_inference && weight_data.elemsize == (size_t)1u)
@@ -468,7 +468,7 @@ int Convolution_mips::forward(const Mat& bottom_blob, Mat& top_blob, const Optio
     return 0;
 }
 
-int Convolution_mips::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int Convolution_mips::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     const Mat& bottom_blob = bottom_blobs[0];
     const Mat& _weight_data = bottom_blobs[1];

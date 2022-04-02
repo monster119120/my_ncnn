@@ -1993,7 +1993,7 @@ MAKE_FUNCTION(binary_op_rdiv_pack4, _mm_div_ps(y, x))
 } // namespace BinaryOp_x86_functor
 #endif // __SSE2__
 
-int BinaryOp_x86::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int BinaryOp_x86::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
 #if __SSE2__
     using namespace BinaryOp_x86_functor;

@@ -24,7 +24,7 @@ class Slice_mips : virtual public Slice
 public:
     Slice_mips();
 
-    virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const;
+    virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt);
 };
 
 } // namespace ncnn

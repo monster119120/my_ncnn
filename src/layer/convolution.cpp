@@ -128,8 +128,10 @@ int Convolution::create_pipeline(const Option& opt)
     return 0;
 }
 
+
 static int convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_data, const Mat& bias_data, int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h, int activation_type, const Mat& activation_params, const Option& opt)
 {
+//    fprintf(stderr, "raw raw conv conv\n");
     const int w = bottom_blob.w;
     const int inch = bottom_blob.c;
 
@@ -160,48 +162,185 @@ static int convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_
         }
     }
 
-    #pragma omp parallel for num_threads(opt.num_threads)
-    for (int p = 0; p < outch; p++)
+    //    fprintf(stderr, "i am kernel\n");
+    //    #pragma omp parallel for num_threads(opt.num_threads)
+    //    fprintf(stderr, "outch is %d\n", outch);
+    //    fprintf(stderr, "bias_term? is %d\n", bias_term);
+    //    float count = 0;
+    //    float total = 0;
+    //    for (int k = 0; k < outch; k++)
+    //    {
+    //        float* outptr = top_blob.channel(k);
+    //
+    //        for (int i = 0; i < outh; i++)
+    //        {
+    //            for (int j = 0; j < outw; j++)
+    //            {
+    //                float sum = 0.f;
+    //
+    //                if (bias_term)
+    //                    sum = bias_data[k];
+    //
+    //                const float* kptr = (const float*)weight_data + maxk * inch * k;
+    //                // 对应line7
+    //                // TODO compute || x^(t) - x(t-1) ||
+    //
+    //                for (int q = 0; q < inch; q++)
+    //                {
+    //                    const Mat m = bottom_blob.channel(q);
+    //                    const float* sptr = m.row(i * stride_h) + j * stride_w;
+    //
+    //                    for (int w_i = 0; w_i < maxk; w_i++) // 29.23
+    //                    {
+    //                        float val = sptr[space_ofs[w_i]]; // 20.72
+    //                        float wt = kptr[w_i];
+    //                        sum += val * wt; // 41.45
+    //                    }
+    //
+    //                    kptr += maxk;
+    //                }
+    //
+    //                outptr[j] = activation_ss(sum, activation_type, activation_params);
+    //                if (outptr[j] <= 0.0){
+    //                    count += 1;
+    //                }
+    //                total += 1;
+    //            }
+    //
+    //            outptr += outw;
+    //        }
+    //    }
+    float count = 0;
+    float total = 0;
+    for (int i = 0; i < outh; i++)
     {
-        float* outptr = top_blob.channel(p);
-
-        for (int i = 0; i < outh; i++)
+        for (int j = 0; j < outw; j++)
         {
-            for (int j = 0; j < outw; j++)
+            /*
+             * TODO
+             * compute dx_norm = || x_{ij}^{t} - x_{ij}^{t-1} ||
+             */
+            for (int k = 0; k < outch; k++)
             {
-                float sum = 0.f;
+                float* outptr = top_blob.channel(k);
+                outptr += i * outw;
+                float y_kij = 0.f;
 
                 if (bias_term)
-                    sum = bias_data[p];
+                    y_kij = bias_data[k];
 
-                const float* kptr = (const float*)weight_data + maxk * inch * p;
-
+                const float* kptr = (const float*)weight_data + maxk * inch * k;
+                /*
+                 * TODO
+                 * get w_norm = || w_k ||
+                 * if (\bar{y[ijk]} + dx_norm * w_norm <= - bias_data[k]) // reduce computation
+                 * {
+                 *      update \bar{y[ijk]} = \bar{y[ijk]} + dx_norm * w_norm
+                 * }
+                 * else // exact compute
+                 */
                 for (int q = 0; q < inch; q++)
                 {
                     const Mat m = bottom_blob.channel(q);
                     const float* sptr = m.row(i * stride_h) + j * stride_w;
 
-                    for (int k = 0; k < maxk; k++) // 29.23
+                    for (int w_i = 0; w_i < maxk; w_i++) // 29.23
                     {
-                        float val = sptr[space_ofs[k]]; // 20.72
-                        float wt = kptr[k];
-                        sum += val * wt; // 41.45
+                        float val = sptr[space_ofs[w_i]]; // 20.72
+                        float wt = kptr[w_i];
+                        y_kij += val * wt; // 41.45
                     }
 
                     kptr += maxk;
                 }
-
-                outptr[j] = activation_ss(sum, activation_type, activation_params);
+                outptr[j] = activation_ss(y_kij, activation_type, activation_params);
+                if (outptr[j] <= 0.0){
+                    count += 1;
+                }
+                total += 1;
             }
-
-            outptr += outw;
         }
     }
+
+//    fprintf(stderr, "percent of 0 is %f\n", count/total);
 
     return 0;
 }
 
-int Convolution::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+//static int convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_data, const Mat& bias_data, int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h, int activation_type, const Mat& activation_params, const Option& opt)
+//{
+//    const int w = bottom_blob.w;
+//    const int inch = bottom_blob.c;
+//
+//    const int outw = top_blob.w;
+//    const int outh = top_blob.h;
+//    const int outch = top_blob.c;
+//
+//    const int bias_term = bias_data.empty() ? 0 : 1;
+//
+//    const int maxk = kernel_w * kernel_h;
+//
+//    // kernel offsets
+//    std::vector<int> _space_ofs(maxk);
+//    int* space_ofs = &_space_ofs[0];
+//    {
+//        int p1 = 0;
+//        int p2 = 0;
+//        int gap = w * dilation_h - kernel_w * dilation_w;
+//        for (int i = 0; i < kernel_h; i++)
+//        {
+//            for (int j = 0; j < kernel_w; j++)
+//            {
+//                space_ofs[p1] = p2;
+//                p1++;
+//                p2 += dilation_w;
+//            }
+//            p2 += gap;
+//        }
+//    }
+//
+//    #pragma omp parallel for num_threads(opt.num_threads)
+//    for (int p = 0; p < outch; p++)
+//    {
+//        float* outptr = top_blob.channel(p);
+//
+//        for (int i = 0; i < outh; i++)
+//        {
+//            for (int j = 0; j < outw; j++)
+//            {
+//                float sum = 0.f;
+//
+//                if (bias_term)
+//                    sum = bias_data[p];
+//
+//                const float* kptr = (const float*)weight_data + maxk * inch * p;
+//
+//                for (int q = 0; q < inch; q++)
+//                {
+//                    const Mat m = bottom_blob.channel(q);
+//                    const float* sptr = m.row(i * stride_h) + j * stride_w;
+//
+//                    for (int k = 0; k < maxk; k++) // 29.23
+//                    {
+//                        float val = sptr[space_ofs[k]]; // 20.72
+//                        float wt = kptr[k];
+//                        sum += val * wt; // 41.45
+//                    }
+//
+//                    kptr += maxk;
+//                }
+//
+//                outptr[j] = activation_ss(sum, activation_type, activation_params);
+//            }
+//
+//            outptr += outw;
+//        }
+//    }
+//
+//    return 0;
+//}
+
+int Convolution::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
 #if NCNN_INT8
     if (opt.use_int8_inference && weight_data.elemsize == (size_t)1u)
@@ -284,7 +423,7 @@ int Convolution::forward(const Mat& bottom_blob, Mat& top_blob, const Option& op
     return 0;
 }
 
-int Convolution::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int Convolution::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     const Mat& bottom_blob = bottom_blobs[0];
     const Mat& _weight_data = bottom_blobs[1];

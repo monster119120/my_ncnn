@@ -24,7 +24,7 @@ class Interp_riscv : virtual public Interp
 public:
     Interp_riscv();
 
-    virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const;
+    virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt);
 
 protected:
 #if __riscv_vector && __riscv_zfh

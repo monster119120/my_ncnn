@@ -38,7 +38,7 @@ Padding_x86::Padding_x86()
 #endif // __SSE2__
 }
 
-int Padding_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Padding_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     if (top == 0 && bottom == 0 && left == 0 && right == 0 && front == 0 && behind == 0)
     {

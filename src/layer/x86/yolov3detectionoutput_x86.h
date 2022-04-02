@@ -24,7 +24,7 @@ class Yolov3DetectionOutput_x86 : virtual public Yolov3DetectionOutput
 public:
     Yolov3DetectionOutput_x86();
 
-    virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const;
+    virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt);
 };
 
 } // namespace ncnn

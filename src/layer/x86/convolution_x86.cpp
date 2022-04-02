@@ -506,7 +506,7 @@ int Convolution_x86::destroy_pipeline(const Option& opt)
     return 0;
 }
 
-int Convolution_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Convolution_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     // convolv with NxN kernel
     // value = value + bias
@@ -1088,7 +1088,7 @@ int Convolution_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option
     return 0;
 }
 
-int Convolution_x86::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const
+int Convolution_x86::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     const Mat& bottom_blob = bottom_blobs[0];
     const Mat& _weight_data = bottom_blobs[1];

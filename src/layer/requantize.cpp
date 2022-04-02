@@ -101,7 +101,7 @@ int Requantize::load_model(const ModelBin& mb)
     return 0;
 }
 
-int Requantize::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const
+int Requantize:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int dims = bottom_blob.dims;
 
