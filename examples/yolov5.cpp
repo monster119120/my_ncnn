@@ -498,7 +498,7 @@ int main(int argc, char** argv)
     std::vector<Object> objects;
     detect_yolov5(m, objects);
 
-//    draw_objects(m, objects);
+    //    draw_objects(m, objects);
 
     return 0;
 }
