@@ -144,6 +144,8 @@ public:
     bool use_reserved_9;
     bool use_reserved_10;
     bool use_reserved_11;
+
+    float lower;
 };
 
 } // namespace ncnn

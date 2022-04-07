@@ -72,6 +72,11 @@ public:
     Mat weight_data;
     Mat bias_data;
 
+    // record
+    Mat last_x;
+    Mat last_y;
+    Mat w_norm2;
+
 #if NCNN_INT8
     Mat weight_data_int8_scales;
     Mat bottom_blob_int8_scales;

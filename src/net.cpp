@@ -23,6 +23,8 @@
 #include <stdarg.h>
 #include <stdint.h>
 #include <string.h>
+#include <hardswish.h>
+#include <convolution.h>
 
 #if NCNN_BENCHMARK
 #include "benchmark.h"
@@ -49,7 +51,7 @@ public:
 #endif // NCNN_VULKAN
 
     friend class Extractor;
-    int forward_layer(int layer_index, std::vector<Mat>& blob_mats, const Option& opt);
+    int forward_layer(int layer_index, std::vector<Mat>& blob_mats, Option& opt);
 
 #if NCNN_VULKAN
     int forward_layer(int layer_index, std::vector<Mat>& blob_mats, std::vector<VkMat>& blob_mats_gpu, VkCompute& cmd, const Option& opt);
@@ -147,10 +149,10 @@ int NetPrivate::upload_model()
 }
 #endif // NCNN_VULKAN
 
-int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, const Option& opt){
+int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, Option& opt){
     Layer* layer = layers[layer_index];
-
     //     NCNN_LOGE("forward_layer %d %s", layer_index, layer->name.c_str());
+//    Layer* next_layer
 
     if (layer->one_blob_only)
     {
@@ -180,6 +182,10 @@ int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, cons
         }
     }
 
+//    fprintf(stderr, "开始计时\n");
+
+    unsigned int next_index = (layer_index+1) % layers.size();
+//    fprintf(stderr, "index [%d] %s, its next layer name is %s; type is %s; type_index is %d\n", layer_index, layer->name.c_str(), layers[next_index]->name.c_str(), layers[next_index]->type.c_str(), layers[next_index]->typeindex);
 #if NCNN_BENCHMARK
     double start = get_current_time();
     Mat bottom_blob;
@@ -194,6 +200,16 @@ int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, cons
         bottom_blob.elemsize = blob_mats[bottom_blob_index].elemsize;
     }
 #endif
+    opt.use_reserved_0 = false;
+    if (layer->type == "Convolution"
+        && ((Convolution*)layer)->activation_type == 1
+//        && layers[next_index]->typeindex == LayerType::ReLU
+//        && ((Convolution*)layer)->kernel_w > 2
+        ){
+        fprintf(stderr, "index [%d], conv activation type is %d\n", layer_index, ((Convolution*)layer)->activation_type);
+        opt.use_reserved_0 = true;
+    }
+
     int ret = do_forward_layer(layer, blob_mats, opt);
 #if NCNN_BENCHMARK
     double end = get_current_time();
@@ -213,7 +229,7 @@ int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, cons
     //     NCNN_LOGE("forward_layer %d %s done", layer_index, layer->name.c_str());
     //     const Mat& blob = blob_mats[layer->tops[0]];
     //     NCNN_LOGE("[%-2d %-16s %-16s]  %d    blobs count = %-3d   size = %-3d x %-3d", layer_index, layer->type.c_str(), layer->name.c_str(), layer->tops[0], blob.c, blob.h, blob.w);
-
+//    fprintf(stderr, "结束计时\n\n");
     return 0;
 }
 

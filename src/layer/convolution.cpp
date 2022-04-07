@@ -48,6 +48,10 @@ int Convolution::load_param(const ParamDict& pd)
 
     dynamic_weight = pd.get(19, 0);
 
+    last_x = Mat();
+    last_y = Mat();
+    w_norm2 =Mat();
+
     if (dynamic_weight)
     {
         one_blob_only = false;
@@ -129,9 +133,212 @@ int Convolution::create_pipeline(const Option& opt)
 }
 
 
+static int convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data, const Mat& bias_data,
+                       int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h,
+                       int activation_type, const Mat& activation_params, const Option& opt, Mat& last_x, Mat& last_y,Mat& w_norm2)
+{
+//    fprintf(stderr, "卷卷卷@@raw conv, activation type is %d\n", activation_type);
+    const int w = in_x.w;
+    const int inch = in_x.c;
+
+    const int outw = out_y.w;
+    const int outh = out_y.h;
+    const int outch = out_y.c;
+
+    const int bias_term = bias_data.empty() ? 0 : 1;
+
+    const int maxk = kernel_w * kernel_h;
+
+    // kernel offsets
+    std::vector<int> _space_ofs(maxk);
+    int* space_ofs = &_space_ofs[0];
+    {
+        int p1 = 0;
+        int p2 = 0;
+        int gap = w * dilation_h - kernel_w * dilation_w;
+        for (int i = 0; i < kernel_h; i++)
+        {
+            for (int j = 0; j < kernel_w; j++)
+            {
+                space_ofs[p1] = p2;
+                p1++;
+                p2 += dilation_w;
+            }
+            p2 += gap;
+        }
+    }
+
+    if (last_x.total() <= 0){
+        int less_0_count = 0;
+        w_norm2.create(outch);
+
+        /**
+         * calculate w_norm2
+         */
+        float* w_norm2_data = (float*) w_norm2.data;
+        for (int k=0; k<outch; k++){
+            const float* kptr = (const float*)weight_data.data + maxk * inch * k;
+            w_norm2_data[k] = 0.0;
+            for (int q = 0; q < inch; q++){
+                for (int w_i = 0; w_i < maxk; w_i++){
+                    w_norm2_data[k] += kptr[w_i] * kptr[w_i];
+                }
+                kptr += maxk;
+            }
+            w_norm2_data[k] = sqrt(w_norm2_data[k]);
+        }
+
+        /**
+         * exact compute
+         */
+        last_x.clone_from(in_x);
+        last_y.clone_from(out_y);
+        for (int i = 0; i < outh; i++)
+        {
+            for (int j = 0; j < outw; j++)
+            {
+                for (int k = 0; k < outch; k++)
+                {
+                    float* outptr = out_y.channel(k);
+                    outptr += i * outw;
+
+                    float* outptr_last_y = last_y.channel(k);
+                    outptr_last_y += i * outw;
+
+                    float y_kij = 0.f;
+
+                    if (bias_term)
+                        y_kij = bias_data[k];
+
+                    // 某层有64个卷积核，kptr即为64个卷积核之一
+                    const float* kptr = (const float*)weight_data + maxk * inch * k;
+
+                    for (int q = 0; q < inch; q++)
+                    {
+                        const Mat m = in_x.channel(q);
+                        const float* sptr = m.row(i * stride_h) + j * stride_w;
+
+                        for (int w_i = 0; w_i < maxk; w_i++) // 29.23
+                        {
+                            float val = sptr[space_ofs[w_i]]; // 20.72
+                            float wt = kptr[w_i];
+                            y_kij += val * wt; // 41.45
+
+                        }
+
+                        kptr += maxk;
+                    }
+                    if (bias_term)
+                        outptr_last_y[j] = y_kij - bias_data[k];
+                    outptr[j] = activation_ss(y_kij, activation_type, activation_params);
+                    if (outptr_last_y[j] <= opt.lower)
+                        less_0_count += 1;
+                }
+            }
+        }
+        fprintf(stderr, "less 0 count = %d\n",less_0_count);
+    }else{
+//        fprintf(stderr, "啊啊啊啊啊\n");
+        float reduced_count = 0.0;
+        float total_count = 0.0;
+        for (int i = 0; i < outh; i++)
+        {
+            for (int j = 0; j < outw; j++)
+            {
+                /**
+                 * compute dx_norm = || x_{ij}^{t} - x_{ij}^{t-1} ||
+                 */
+
+//                fprintf(stderr, "debug 1\n");
+                float dx2_sum = 0.0;
+                for (int q = 0; q < inch; q++)
+                {
+                    const Mat m = in_x.channel(q);
+                    const float* sptr = m.row(i * stride_h) + j * stride_w;
+
+                    const Mat m_last_x = last_x.channel(q);
+                    const float* sptr_last_x = m_last_x.row(i * stride_h) + j * stride_w;
+
+                    for (int w_i = 0; w_i < maxk; w_i++)
+                    {
+                        float val = sptr[space_ofs[w_i]];
+                        float val_last_x = sptr_last_x[space_ofs[w_i]];
+                        dx2_sum += (val - val_last_x) * (val - val_last_x);
+                    }
+                }
+
+                float dx_norm = sqrt(dx2_sum);
+
+                for (int k = 0; k < outch; k++)
+                {
+//                    fprintf(stderr, "debug 2\n");
+                    float* outptr = out_y.channel(k);
+                    outptr += i * outw;
+                    float y_kij = 0.f;
+
+                    if (bias_term)
+                        y_kij = bias_data[k];
+
+                    const float* kptr = (const float*)weight_data + maxk * inch * k;
+
+                    /**
+                     * get w_norm = || w_k ||
+                     * if (\bar{y[ijk]} + dx_norm * w_norm <= - bias_data[k]) // reduce computation
+                     * {
+                     *      update \bar{y[ijk]} = \bar{y[ijk]} + dx_norm * w_norm
+                     * }
+                     * else // exact compute
+                     */
+                    const float* w_norm2_ptr = (const float*)w_norm2.data;
+                    float norm_norm = w_norm2_ptr[k] * dx_norm;
+                    float* out_bar_ptr = last_y.channel(k);
+
+                    out_bar_ptr += i * outw;
+
+                    total_count += 1;
+                    if (out_bar_ptr[j] + norm_norm <= - y_kij){
+                        out_bar_ptr[j] += norm_norm;
+                        outptr[j] = activation_ss(out_bar_ptr[j], activation_type, activation_params);
+                        reduced_count += 1;
+                    }else{
+                        for (int q = 0; q < inch; q++)
+                        {
+                            const Mat m = in_x.channel(q);
+                            const float* sptr = m.row(i * stride_h) + j * stride_w;
+
+
+                            for (int w_i = 0; w_i < maxk; w_i++) // 29.23
+                            {
+                                float val = sptr[space_ofs[w_i]]; // 20.72
+                                float wt = kptr[w_i];
+                                y_kij += val * wt; // 41.45
+                            }
+
+                            kptr += maxk;
+                        }
+
+                        if (bias_term)
+                            out_bar_ptr[j] = y_kij - bias_data[k];
+                        else
+                            out_bar_ptr[j] = y_kij;
+                        outptr[j] = activation_ss(y_kij, activation_type, activation_params);
+                    }
+
+                }
+//                fprintf(stderr, "debug 4\n");
+            }
+        }
+        fprintf(stderr, "\treduce %f times, total %f times, \t减少了 %f, \n", reduced_count, total_count, reduced_count/total_count);
+        last_x.clone_from(in_x);
+    }
+
+
+    return 0;
+}
+
+// 保留原来的convolution
 static int convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_data, const Mat& bias_data, int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h, int activation_type, const Mat& activation_params, const Option& opt)
 {
-//    fprintf(stderr, "raw raw conv conv\n");
     const int w = bottom_blob.w;
     const int inch = bottom_blob.c;
 
@@ -162,183 +369,46 @@ static int convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_
         }
     }
 
-    //    fprintf(stderr, "i am kernel\n");
-    //    #pragma omp parallel for num_threads(opt.num_threads)
-    //    fprintf(stderr, "outch is %d\n", outch);
-    //    fprintf(stderr, "bias_term? is %d\n", bias_term);
-    //    float count = 0;
-    //    float total = 0;
-    //    for (int k = 0; k < outch; k++)
-    //    {
-    //        float* outptr = top_blob.channel(k);
-    //
-    //        for (int i = 0; i < outh; i++)
-    //        {
-    //            for (int j = 0; j < outw; j++)
-    //            {
-    //                float sum = 0.f;
-    //
-    //                if (bias_term)
-    //                    sum = bias_data[k];
-    //
-    //                const float* kptr = (const float*)weight_data + maxk * inch * k;
-    //                // 对应line7
-    //                // TODO compute || x^(t) - x(t-1) ||
-    //
-    //                for (int q = 0; q < inch; q++)
-    //                {
-    //                    const Mat m = bottom_blob.channel(q);
-    //                    const float* sptr = m.row(i * stride_h) + j * stride_w;
-    //
-    //                    for (int w_i = 0; w_i < maxk; w_i++) // 29.23
-    //                    {
-    //                        float val = sptr[space_ofs[w_i]]; // 20.72
-    //                        float wt = kptr[w_i];
-    //                        sum += val * wt; // 41.45
-    //                    }
-    //
-    //                    kptr += maxk;
-    //                }
-    //
-    //                outptr[j] = activation_ss(sum, activation_type, activation_params);
-    //                if (outptr[j] <= 0.0){
-    //                    count += 1;
-    //                }
-    //                total += 1;
-    //            }
-    //
-    //            outptr += outw;
-    //        }
-    //    }
-    float count = 0;
-    float total = 0;
-    for (int i = 0; i < outh; i++)
+    #pragma omp parallel for num_threads(opt.num_threads)
+    for (int p = 0; p < outch; p++)
     {
-        for (int j = 0; j < outw; j++)
+        float* outptr = top_blob.channel(p);
+
+        for (int i = 0; i < outh; i++)
         {
-            /*
-             * TODO
-             * compute dx_norm = || x_{ij}^{t} - x_{ij}^{t-1} ||
-             */
-            for (int k = 0; k < outch; k++)
+            for (int j = 0; j < outw; j++)
             {
-                float* outptr = top_blob.channel(k);
-                outptr += i * outw;
-                float y_kij = 0.f;
+                float sum = 0.f;
 
                 if (bias_term)
-                    y_kij = bias_data[k];
+                    sum = bias_data[p];
 
-                const float* kptr = (const float*)weight_data + maxk * inch * k;
-                /*
-                 * TODO
-                 * get w_norm = || w_k ||
-                 * if (\bar{y[ijk]} + dx_norm * w_norm <= - bias_data[k]) // reduce computation
-                 * {
-                 *      update \bar{y[ijk]} = \bar{y[ijk]} + dx_norm * w_norm
-                 * }
-                 * else // exact compute
-                 */
+                const float* kptr = (const float*)weight_data + maxk * inch * p;
+
                 for (int q = 0; q < inch; q++)
                 {
                     const Mat m = bottom_blob.channel(q);
                     const float* sptr = m.row(i * stride_h) + j * stride_w;
 
-                    for (int w_i = 0; w_i < maxk; w_i++) // 29.23
+                    for (int k = 0; k < maxk; k++) // 29.23
                     {
-                        float val = sptr[space_ofs[w_i]]; // 20.72
-                        float wt = kptr[w_i];
-                        y_kij += val * wt; // 41.45
+                        float val = sptr[space_ofs[k]]; // 20.72
+                        float wt = kptr[k];
+                        sum += val * wt; // 41.45
                     }
 
                     kptr += maxk;
                 }
-                outptr[j] = activation_ss(y_kij, activation_type, activation_params);
-                if (outptr[j] <= 0.0){
-                    count += 1;
-                }
-                total += 1;
+
+                outptr[j] = activation_ss(sum, activation_type, activation_params);
             }
+
+            outptr += outw;
         }
     }
 
-//    fprintf(stderr, "percent of 0 is %f\n", count/total);
-
     return 0;
 }
-
-//static int convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_data, const Mat& bias_data, int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h, int activation_type, const Mat& activation_params, const Option& opt)
-//{
-//    const int w = bottom_blob.w;
-//    const int inch = bottom_blob.c;
-//
-//    const int outw = top_blob.w;
-//    const int outh = top_blob.h;
-//    const int outch = top_blob.c;
-//
-//    const int bias_term = bias_data.empty() ? 0 : 1;
-//
-//    const int maxk = kernel_w * kernel_h;
-//
-//    // kernel offsets
-//    std::vector<int> _space_ofs(maxk);
-//    int* space_ofs = &_space_ofs[0];
-//    {
-//        int p1 = 0;
-//        int p2 = 0;
-//        int gap = w * dilation_h - kernel_w * dilation_w;
-//        for (int i = 0; i < kernel_h; i++)
-//        {
-//            for (int j = 0; j < kernel_w; j++)
-//            {
-//                space_ofs[p1] = p2;
-//                p1++;
-//                p2 += dilation_w;
-//            }
-//            p2 += gap;
-//        }
-//    }
-//
-//    #pragma omp parallel for num_threads(opt.num_threads)
-//    for (int p = 0; p < outch; p++)
-//    {
-//        float* outptr = top_blob.channel(p);
-//
-//        for (int i = 0; i < outh; i++)
-//        {
-//            for (int j = 0; j < outw; j++)
-//            {
-//                float sum = 0.f;
-//
-//                if (bias_term)
-//                    sum = bias_data[p];
-//
-//                const float* kptr = (const float*)weight_data + maxk * inch * p;
-//
-//                for (int q = 0; q < inch; q++)
-//                {
-//                    const Mat m = bottom_blob.channel(q);
-//                    const float* sptr = m.row(i * stride_h) + j * stride_w;
-//
-//                    for (int k = 0; k < maxk; k++) // 29.23
-//                    {
-//                        float val = sptr[space_ofs[k]]; // 20.72
-//                        float wt = kptr[k];
-//                        sum += val * wt; // 41.45
-//                    }
-//
-//                    kptr += maxk;
-//                }
-//
-//                outptr[j] = activation_ss(sum, activation_type, activation_params);
-//            }
-//
-//            outptr += outw;
-//        }
-//    }
-//
-//    return 0;
-//}
 
 int Convolution::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
@@ -416,7 +486,15 @@ int Convolution::forward(const Mat& bottom_blob, Mat& top_blob, const Option& op
     if (top_blob.empty())
         return -100;
 
-    int ret = convolution(bottom_blob_bordered, top_blob, weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt);
+    int ret;
+    if (opt.use_reserved_0 && kernel_w > 1 && kernel_h > 1 && activation_type==1){
+        ret = convolution(bottom_blob_bordered, top_blob,
+                              weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
+                              last_x, last_y, w_norm2);
+    }else{
+        ret = convolution(bottom_blob_bordered, top_blob,
+                          weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt);
+    }
     if (ret != 0)
         return ret;
 
@@ -466,7 +544,9 @@ int Convolution::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>&
     if (top_blob.empty())
         return -100;
 
-    int ret = convolution(bottom_blob_bordered, top_blob, weight_data_flattened, bias_data_flattened, _kernel_w, _kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt);
+    int ret = convolution(bottom_blob_bordered, top_blob, weight_data_flattened, bias_data_flattened, _kernel_w, _kernel_h,
+                          stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
+                          last_x, last_y, w_norm2);
     if (ret != 0)
         return ret;
 

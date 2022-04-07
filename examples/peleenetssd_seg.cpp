@@ -13,6 +13,9 @@
 // specific language governing permissions and limitations under the License.
 
 #include "net.h"
+//#if NCNN_BENCHMARK
+#include "benchmark.h"
+//#endif // NCNN_BENCHMARK
 
 #if defined(USE_NCNN_SIMPLEOCV)
 #include "simpleocv.h"
@@ -40,8 +43,8 @@ static int detect_peleenet(const cv::Mat& bgr, std::vector<Object>& objects, ncn
     // model is converted from https://github.com/eric612/MobileNet-YOLO
     // and can be downloaded from https://drive.google.com/open?id=1Wt6jKv13sBRMHgrGAJYlOlRF-o80pC0g
     // the ncnn model https://github.com/nihui/ncnn-assets/tree/master/models
-    peleenet.load_param("pelee.param");
-    peleenet.load_model("pelee.bin");
+    peleenet.load_param("../../examples/pelee.param");
+    peleenet.load_model("../../examples/pelee.bin");
 
     const int target_size = 304;
 
@@ -53,34 +56,34 @@ static int detect_peleenet(const cv::Mat& bgr, std::vector<Object>& objects, ncn
     const float mean_vals[3] = {103.9f, 116.7f, 123.6f};
     const float norm_vals[3] = {0.017f, 0.017f, 0.017f};
     in.substract_mean_normalize(mean_vals, norm_vals);
-
-    ncnn::Extractor ex = peleenet.create_extractor();
-
-    ex.input("data", in);
-
     ncnn::Mat out;
-    ex.extract("detection_out", out);
-
-    //     printf("%d %d %d\n", out.w, out.h, out.c);
-    objects.clear();
-    for (int i = 0; i < out.h; i++)
-    {
-        const float* values = out.row(i);
-
-        Object object;
-        object.label = values[0];
-        object.prob = values[1];
-        object.rect.x = values[2] * img_w;
-        object.rect.y = values[3] * img_h;
-        object.rect.width = values[4] * img_w - object.rect.x;
-        object.rect.height = values[5] * img_h - object.rect.y;
-
-        objects.push_back(object);
-    }
     ncnn::Mat seg_out;
-    ex.extract("sigmoid", seg_out);
-    resize_bilinear(seg_out, resized, img_w, img_h);
-    //resize_bicubic(seg_out,resized,img_w,img_h); // sharpness
+
+    for (int i=0; i<1; i++){
+        out.release();
+        seg_out.release();
+        ncnn::Extractor ex = peleenet.create_extractor();
+        ex.input("data", in);
+        ex.extract("detection_out", out);
+        ex.extract("sigmoid", seg_out);
+        resize_bilinear(seg_out, resized, img_w, img_h);
+        resize_bicubic(seg_out,resized,img_w,img_h); // sharpness
+    }
+
+    double start = ncnn::get_current_time();
+    for (int i=0; i<10; i++){
+        out.release();
+        seg_out.release();
+        ncnn::Extractor ex = peleenet.create_extractor();
+        ex.input("data", in);
+        ex.extract("detection_out", out);
+        ex.extract("sigmoid", seg_out);
+        resize_bilinear(seg_out, resized, img_w, img_h);
+        resize_bicubic(seg_out,resized,img_w,img_h); // sharpness
+    }
+
+    double end = ncnn::get_current_time();
+    fprintf(stderr, "End-to-end time: %f\n", end - start);
     return 0;
 }
 
@@ -190,7 +193,7 @@ int main(int argc, char** argv)
     ncnn::Mat seg_out;
     detect_peleenet(m, objects, seg_out);
 
-    draw_objects(m, objects, seg_out);
+//    draw_objects(m, objects, seg_out);
 
     return 0;
 }
