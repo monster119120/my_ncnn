@@ -59,7 +59,8 @@ static int detect_peleenet(const cv::Mat& bgr, std::vector<Object>& objects, ncn
     ncnn::Mat out;
     ncnn::Mat seg_out;
 
-    for (int i=0; i<1; i++){
+    for (int i = 0; i < 1; i++)
+    {
         out.release();
         seg_out.release();
         ncnn::Extractor ex = peleenet.create_extractor();
@@ -67,11 +68,12 @@ static int detect_peleenet(const cv::Mat& bgr, std::vector<Object>& objects, ncn
         ex.extract("detection_out", out);
         ex.extract("sigmoid", seg_out);
         resize_bilinear(seg_out, resized, img_w, img_h);
-        resize_bicubic(seg_out,resized,img_w,img_h); // sharpness
+        resize_bicubic(seg_out, resized, img_w, img_h); // sharpness
     }
 
     double start = ncnn::get_current_time();
-    for (int i=0; i<10; i++){
+    for (int i = 0; i < 10; i++)
+    {
         out.release();
         seg_out.release();
         ncnn::Extractor ex = peleenet.create_extractor();
@@ -79,7 +81,7 @@ static int detect_peleenet(const cv::Mat& bgr, std::vector<Object>& objects, ncn
         ex.extract("detection_out", out);
         ex.extract("sigmoid", seg_out);
         resize_bilinear(seg_out, resized, img_w, img_h);
-        resize_bicubic(seg_out,resized,img_w,img_h); // sharpness
+        resize_bicubic(seg_out, resized, img_w, img_h); // sharpness
     }
 
     double end = ncnn::get_current_time();
@@ -193,7 +195,7 @@ int main(int argc, char** argv)
     ncnn::Mat seg_out;
     detect_peleenet(m, objects, seg_out);
 
-//    draw_objects(m, objects, seg_out);
+    //    draw_objects(m, objects, seg_out);
 
     return 0;
 }

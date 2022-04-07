@@ -322,106 +322,107 @@ static int detect_yolov5(const cv::Mat& bgr, std::vector<Object>& objects)
     const float norm_vals[3] = {1 / 255.f, 1 / 255.f, 1 / 255.f};
     in_pad.substract_mean_normalize(0, norm_vals);
 
-//    std::vector<Object> proposals;
+    //    std::vector<Object> proposals;
     ncnn::Mat out;
-    for (int cc=0; cc < 3; cc++){
+    for (int cc = 0; cc < 3; cc++)
+    {
         out.release();
         ncnn::Extractor ex = yolov5.create_extractor();
         ex.input("images", in_pad);
-//        proposals.clear();
+        //        proposals.clear();
         // anchor setting from yolov5/models/yolov5s.yaml
         // stride 8
         ex.extract("output", out);
 
-//            ncnn::Mat anchors(6);
-//            anchors[0] = 10.f;
-//            anchors[1] = 13.f;
-//            anchors[2] = 16.f;
-//            anchors[3] = 30.f;
-//            anchors[4] = 33.f;
-//            anchors[5] = 23.f;
-//
-//            std::vector<Object> objects8;
-//            generate_proposals(anchors, 8, in_pad, out, prob_threshold, objects8);
-//
-//            proposals.insert(proposals.end(), objects8.begin(), objects8.end());
+        //            ncnn::Mat anchors(6);
+        //            anchors[0] = 10.f;
+        //            anchors[1] = 13.f;
+        //            anchors[2] = 16.f;
+        //            anchors[3] = 30.f;
+        //            anchors[4] = 33.f;
+        //            anchors[5] = 23.f;
+        //
+        //            std::vector<Object> objects8;
+        //            generate_proposals(anchors, 8, in_pad, out, prob_threshold, objects8);
+        //
+        //            proposals.insert(proposals.end(), objects8.begin(), objects8.end());
 
         // stride 16
-//        {
-//            out.release();
-//#if YOLOV5_V60
-//            ex.extract("376", out);
-//#else
-//            ex.extract("781", out);
-//#endif
-//
-////            ncnn::Mat anchors(6);
-////            anchors[0] = 30.f;
-////            anchors[1] = 61.f;
-////            anchors[2] = 62.f;
-////            anchors[3] = 45.f;
-////            anchors[4] = 59.f;
-////            anchors[5] = 119.f;
-////
-////            std::vector<Object> objects16;
-////            generate_proposals(anchors, 16, in_pad, out, prob_threshold, objects16);
-////
-////            proposals.insert(proposals.end(), objects16.begin(), objects16.end());
-//        }
-//
-//        // stride 32
-//        {
-//            out.release();
-//#if YOLOV5_V60
-//            ex.extract("401", out);
-//#else
-//            ex.extract("801", out);
-//#endif
-////            ncnn::Mat anchors(6);
-////            anchors[0] = 116.f;
-////            anchors[1] = 90.f;
-////            anchors[2] = 156.f;
-////            anchors[3] = 198.f;
-////            anchors[4] = 373.f;
-////            anchors[5] = 326.f;
-////
-////            std::vector<Object> objects32;
-////            generate_proposals(anchors, 32, in_pad, out, prob_threshold, objects32);
-////
-////            proposals.insert(proposals.end(), objects32.begin(), objects32.end());
-//        }
-//
-////        // sort all proposals by score from highest to lowest
-////        qsort_descent_inplace(proposals);
-////
-////        // apply nms with nms_threshold
-////        std::vector<int> picked;
-////        nms_sorted_bboxes(proposals, picked, nms_threshold);
-////
-////        int count = picked.size();
-////
-////        objects.resize(count);
-////        for (int i = 0; i < count; i++)
-////        {
-////            objects[i] = proposals[picked[i]];
-////
-////            // adjust offset to original unpadded
-////            float x0 = (objects[i].rect.x - (wpad / 2)) / scale;
-////            float y0 = (objects[i].rect.y - (hpad / 2)) / scale;
-////            float x1 = (objects[i].rect.x + objects[i].rect.width - (wpad / 2)) / scale;
-////            float y1 = (objects[i].rect.y + objects[i].rect.height - (hpad / 2)) / scale;
-////
-////            // clip
-////            x0 = std::max(std::min(x0, (float)(img_w - 1)), 0.f);
-////            y0 = std::max(std::min(y0, (float)(img_h - 1)), 0.f);
-////            x1 = std::max(std::min(x1, (float)(img_w - 1)), 0.f);
-////            y1 = std::max(std::min(y1, (float)(img_h - 1)), 0.f);
-////
-////            objects[i].rect.x = x0;
-////            objects[i].rect.y = y0;
-////            objects[i].rect.width = x1 - x0;
-////            objects[i].rect.height = y1 - y0;
-////        }
+        //        {
+        //            out.release();
+        //#if YOLOV5_V60
+        //            ex.extract("376", out);
+        //#else
+        //            ex.extract("781", out);
+        //#endif
+        //
+        ////            ncnn::Mat anchors(6);
+        ////            anchors[0] = 30.f;
+        ////            anchors[1] = 61.f;
+        ////            anchors[2] = 62.f;
+        ////            anchors[3] = 45.f;
+        ////            anchors[4] = 59.f;
+        ////            anchors[5] = 119.f;
+        ////
+        ////            std::vector<Object> objects16;
+        ////            generate_proposals(anchors, 16, in_pad, out, prob_threshold, objects16);
+        ////
+        ////            proposals.insert(proposals.end(), objects16.begin(), objects16.end());
+        //        }
+        //
+        //        // stride 32
+        //        {
+        //            out.release();
+        //#if YOLOV5_V60
+        //            ex.extract("401", out);
+        //#else
+        //            ex.extract("801", out);
+        //#endif
+        ////            ncnn::Mat anchors(6);
+        ////            anchors[0] = 116.f;
+        ////            anchors[1] = 90.f;
+        ////            anchors[2] = 156.f;
+        ////            anchors[3] = 198.f;
+        ////            anchors[4] = 373.f;
+        ////            anchors[5] = 326.f;
+        ////
+        ////            std::vector<Object> objects32;
+        ////            generate_proposals(anchors, 32, in_pad, out, prob_threshold, objects32);
+        ////
+        ////            proposals.insert(proposals.end(), objects32.begin(), objects32.end());
+        //        }
+        //
+        ////        // sort all proposals by score from highest to lowest
+        ////        qsort_descent_inplace(proposals);
+        ////
+        ////        // apply nms with nms_threshold
+        ////        std::vector<int> picked;
+        ////        nms_sorted_bboxes(proposals, picked, nms_threshold);
+        ////
+        ////        int count = picked.size();
+        ////
+        ////        objects.resize(count);
+        ////        for (int i = 0; i < count; i++)
+        ////        {
+        ////            objects[i] = proposals[picked[i]];
+        ////
+        ////            // adjust offset to original unpadded
+        ////            float x0 = (objects[i].rect.x - (wpad / 2)) / scale;
+        ////            float y0 = (objects[i].rect.y - (hpad / 2)) / scale;
+        ////            float x1 = (objects[i].rect.x + objects[i].rect.width - (wpad / 2)) / scale;
+        ////            float y1 = (objects[i].rect.y + objects[i].rect.height - (hpad / 2)) / scale;
+        ////
+        ////            // clip
+        ////            x0 = std::max(std::min(x0, (float)(img_w - 1)), 0.f);
+        ////            y0 = std::max(std::min(y0, (float)(img_h - 1)), 0.f);
+        ////            x1 = std::max(std::min(x1, (float)(img_w - 1)), 0.f);
+        ////            y1 = std::max(std::min(y1, (float)(img_h - 1)), 0.f);
+        ////
+        ////            objects[i].rect.x = x0;
+        ////            objects[i].rect.y = y0;
+        ////            objects[i].rect.width = x1 - x0;
+        ////            objects[i].rect.height = y1 - y0;
+        ////        }
     }
 
     return 0;

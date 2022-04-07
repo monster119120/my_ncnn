@@ -47,11 +47,12 @@ static int detect_squeezenet(const cv::Mat& bgr, std::vector<float>& cls_scores)
     const float mean_vals[3] = {104.f, 117.f, 123.f};
     in.substract_mean_normalize(mean_vals, 0);
 
-//    ncnn::Extractor ex = squeezenet.create_extractor();
-//
-//    ex.input("data", in);
+    //    ncnn::Extractor ex = squeezenet.create_extractor();
+    //
+    //    ex.input("data", in);
     ncnn::Mat out;
-    for (int i=0; i<3; i++){
+    for (int i = 0; i < 3; i++)
+    {
         out.release();
         fprintf(stderr, " infer\n");
         ncnn::Extractor ex = squeezenet.create_extractor();
@@ -59,11 +60,11 @@ static int detect_squeezenet(const cv::Mat& bgr, std::vector<float>& cls_scores)
         ex.extract("prob", out);
     }
 
-//    cls_scores.resize(out.w);
-//    for (int j = 0; j < out.w; j++)
-//    {
-//        cls_scores[j] = out[j];
-//    }
+    //    cls_scores.resize(out.w);
+    //    for (int j = 0; j < out.w; j++)
+    //    {
+    //        cls_scores[j] = out[j];
+    //    }
 
     return 0;
 }
@@ -113,7 +114,7 @@ int main(int argc, char** argv)
     std::vector<float> cls_scores;
     detect_squeezenet(m, cls_scores);
 
-//    print_topk(cls_scores, 3);
+    //    print_topk(cls_scores, 3);
 
     return 0;
 }

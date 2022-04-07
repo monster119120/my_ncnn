@@ -50,7 +50,7 @@ int Convolution::load_param(const ParamDict& pd)
 
     last_x = Mat();
     last_y = Mat();
-    w_norm2 =Mat();
+    w_norm2 = Mat();
 
     if (dynamic_weight)
     {
@@ -132,12 +132,11 @@ int Convolution::create_pipeline(const Option& opt)
     return 0;
 }
 
-
 static int convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data, const Mat& bias_data,
                        int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h,
-                       int activation_type, const Mat& activation_params, const Option& opt, Mat& last_x, Mat& last_y,Mat& w_norm2)
+                       int activation_type, const Mat& activation_params, const Option& opt, Mat& last_x, Mat& last_y, Mat& w_norm2)
 {
-//    fprintf(stderr, "卷卷卷@@raw conv, activation type is %d\n", activation_type);
+    //    fprintf(stderr, "卷卷卷@@raw conv, activation type is %d\n", activation_type);
     const int w = in_x.w;
     const int inch = in_x.c;
 
@@ -168,19 +167,23 @@ static int convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data, cons
         }
     }
 
-    if (last_x.total() <= 0){
+    if (last_x.total() <= 0)
+    {
         int less_0_count = 0;
         w_norm2.create(outch);
 
         /**
          * calculate w_norm2
          */
-        float* w_norm2_data = (float*) w_norm2.data;
-        for (int k=0; k<outch; k++){
+        float* w_norm2_data = (float*)w_norm2.data;
+        for (int k = 0; k < outch; k++)
+        {
             const float* kptr = (const float*)weight_data.data + maxk * inch * k;
             w_norm2_data[k] = 0.0;
-            for (int q = 0; q < inch; q++){
-                for (int w_i = 0; w_i < maxk; w_i++){
+            for (int q = 0; q < inch; q++)
+            {
+                for (int w_i = 0; w_i < maxk; w_i++)
+                {
                     w_norm2_data[k] += kptr[w_i] * kptr[w_i];
                 }
                 kptr += maxk;
@@ -223,7 +226,6 @@ static int convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data, cons
                             float val = sptr[space_ofs[w_i]]; // 20.72
                             float wt = kptr[w_i];
                             y_kij += val * wt; // 41.45
-
                         }
 
                         kptr += maxk;
@@ -236,9 +238,11 @@ static int convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data, cons
                 }
             }
         }
-        fprintf(stderr, "less 0 count = %d\n",less_0_count);
-    }else{
-//        fprintf(stderr, "啊啊啊啊啊\n");
+        fprintf(stderr, "less 0 count = %d\n", less_0_count);
+    }
+    else
+    {
+        //        fprintf(stderr, "啊啊啊啊啊\n");
         float reduced_count = 0.0;
         float total_count = 0.0;
         for (int i = 0; i < outh; i++)
@@ -249,7 +253,7 @@ static int convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data, cons
                  * compute dx_norm = || x_{ij}^{t} - x_{ij}^{t-1} ||
                  */
 
-//                fprintf(stderr, "debug 1\n");
+                //                fprintf(stderr, "debug 1\n");
                 float dx2_sum = 0.0;
                 for (int q = 0; q < inch; q++)
                 {
@@ -271,7 +275,7 @@ static int convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data, cons
 
                 for (int k = 0; k < outch; k++)
                 {
-//                    fprintf(stderr, "debug 2\n");
+                    //                    fprintf(stderr, "debug 2\n");
                     float* outptr = out_y.channel(k);
                     outptr += i * outw;
                     float y_kij = 0.f;
@@ -296,16 +300,18 @@ static int convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data, cons
                     out_bar_ptr += i * outw;
 
                     total_count += 1;
-                    if (out_bar_ptr[j] + norm_norm <= - y_kij){
+                    if (out_bar_ptr[j] + norm_norm <= -y_kij)
+                    {
                         out_bar_ptr[j] += norm_norm;
                         outptr[j] = activation_ss(out_bar_ptr[j], activation_type, activation_params);
                         reduced_count += 1;
-                    }else{
+                    }
+                    else
+                    {
                         for (int q = 0; q < inch; q++)
                         {
                             const Mat m = in_x.channel(q);
                             const float* sptr = m.row(i * stride_h) + j * stride_w;
-
 
                             for (int w_i = 0; w_i < maxk; w_i++) // 29.23
                             {
@@ -323,15 +329,13 @@ static int convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data, cons
                             out_bar_ptr[j] = y_kij;
                         outptr[j] = activation_ss(y_kij, activation_type, activation_params);
                     }
-
                 }
-//                fprintf(stderr, "debug 4\n");
+                //                fprintf(stderr, "debug 4\n");
             }
         }
-        fprintf(stderr, "\treduce %f times, total %f times, \t减少了 %f, \n", reduced_count, total_count, reduced_count/total_count);
+        fprintf(stderr, "\treduce %f times, total %f times, \t减少了 %f, \n", reduced_count, total_count, reduced_count / total_count);
         last_x.clone_from(in_x);
     }
-
 
     return 0;
 }
@@ -487,11 +491,14 @@ int Convolution::forward(const Mat& bottom_blob, Mat& top_blob, const Option& op
         return -100;
 
     int ret;
-    if (opt.use_reserved_0 && kernel_w > 1 && kernel_h > 1 && activation_type==1){
+    if (opt.use_reserved_0 && kernel_w > 1 && kernel_h > 1 && activation_type == 1)
+    {
         ret = convolution(bottom_blob_bordered, top_blob,
-                              weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
-                              last_x, last_y, w_norm2);
-    }else{
+                          weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
+                          last_x, last_y, w_norm2);
+    }
+    else
+    {
         ret = convolution(bottom_blob_bordered, top_blob,
                           weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt);
     }

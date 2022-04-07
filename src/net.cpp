@@ -149,10 +149,11 @@ int NetPrivate::upload_model()
 }
 #endif // NCNN_VULKAN
 
-int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, Option& opt){
+int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, Option& opt)
+{
     Layer* layer = layers[layer_index];
     //     NCNN_LOGE("forward_layer %d %s", layer_index, layer->name.c_str());
-//    Layer* next_layer
+    //    Layer* next_layer
 
     if (layer->one_blob_only)
     {
@@ -182,9 +183,9 @@ int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, Opti
         }
     }
 
-//    fprintf(stderr, "开始计时\n");
+    //    fprintf(stderr, "开始计时\n");
 
-    unsigned int next_index = (layer_index+1) % layers.size();
+    unsigned int next_index = (layer_index + 1) % layers.size();
 //    fprintf(stderr, "index [%d] %s, its next layer name is %s; type is %s; type_index is %d\n", layer_index, layer->name.c_str(), layers[next_index]->name.c_str(), layers[next_index]->type.c_str(), layers[next_index]->typeindex);
 #if NCNN_BENCHMARK
     double start = get_current_time();
@@ -202,10 +203,11 @@ int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, Opti
 #endif
     opt.use_reserved_0 = false;
     if (layer->type == "Convolution"
-        && ((Convolution*)layer)->activation_type == 1
-//        && layers[next_index]->typeindex == LayerType::ReLU
-//        && ((Convolution*)layer)->kernel_w > 2
-        ){
+            && ((Convolution*)layer)->activation_type == 1
+            //        && layers[next_index]->typeindex == LayerType::ReLU
+            //        && ((Convolution*)layer)->kernel_w > 2
+       )
+    {
         fprintf(stderr, "index [%d], conv activation type is %d\n", layer_index, ((Convolution*)layer)->activation_type);
         opt.use_reserved_0 = true;
     }
@@ -229,12 +231,13 @@ int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, Opti
     //     NCNN_LOGE("forward_layer %d %s done", layer_index, layer->name.c_str());
     //     const Mat& blob = blob_mats[layer->tops[0]];
     //     NCNN_LOGE("[%-2d %-16s %-16s]  %d    blobs count = %-3d   size = %-3d x %-3d", layer_index, layer->type.c_str(), layer->name.c_str(), layer->tops[0], blob.c, blob.h, blob.w);
-//    fprintf(stderr, "结束计时\n\n");
+    //    fprintf(stderr, "结束计时\n\n");
     return 0;
 }
 
 #if NCNN_VULKAN
-int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, std::vector<VkMat>& blob_mats_gpu, VkCompute& cmd, const Option& opt){
+int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, std::vector<VkMat>& blob_mats_gpu, VkCompute& cmd, const Option& opt)
+{
     Layer* layer = layers[layer_index];
 
     //     NCNN_LOGE("forward_layer %d %d %s", layer->support_vulkan, layer_index, layer->name.c_str());
@@ -404,7 +407,8 @@ int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, std:
     return 0;
 }
 
-int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, std::vector<VkMat>& blob_mats_gpu, std::vector<VkImageMat>& blob_mats_gpu_image, VkCompute& cmd, const Option& opt){
+int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, std::vector<VkMat>& blob_mats_gpu, std::vector<VkImageMat>& blob_mats_gpu_image, VkCompute& cmd, const Option& opt)
+{
     Layer* layer = layers[layer_index];
 
     //     NCNN_LOGE("forward_layer %d %d %s", layer->support_vulkan, layer_index, layer->name.c_str());
@@ -739,7 +743,8 @@ IMAGE_ALLOCATION_FAILED:
 }
 #endif // NCNN_VULKAN
 
-int NetPrivate::convert_layout(Mat& bottom_blob, Layer* layer, const Option& opt){
+int NetPrivate::convert_layout(Mat& bottom_blob, Layer* layer, const Option& opt)
+{
     // clang-format off
     // *INDENT-OFF*
 #if NCNN_ARM82
@@ -872,7 +877,8 @@ int NetPrivate::convert_layout(Mat& bottom_blob, Layer* layer, const Option& opt
     return 0;
 }
 
-int NetPrivate::do_forward_layer(Layer* layer, std::vector<Mat>& blob_mats, const Option& opt){
+int NetPrivate::do_forward_layer(Layer* layer, std::vector<Mat>& blob_mats, const Option& opt)
+{
     if (layer->one_blob_only)
     {
         int bottom_blob_index = layer->bottoms[0];
@@ -998,7 +1004,8 @@ int NetPrivate::do_forward_layer(Layer* layer, std::vector<Mat>& blob_mats, cons
 }
 
 #if NCNN_VULKAN
-int NetPrivate::do_forward_layer(Layer* layer, std::vector<VkMat>& blob_mats_gpu, VkCompute& cmd, const Option& opt){
+int NetPrivate::do_forward_layer(Layer* layer, std::vector<VkMat>& blob_mats_gpu, VkCompute& cmd, const Option& opt)
+{
     if (layer->one_blob_only)
     {
         // load bottom blob
@@ -1123,7 +1130,8 @@ int NetPrivate::do_forward_layer(Layer* layer, std::vector<VkMat>& blob_mats_gpu
     return 0;
 }
 
-int NetPrivate::do_forward_layer(Layer* layer, std::vector<VkImageMat>& blob_mats_gpu_image, VkCompute& cmd, const Option& opt){
+int NetPrivate::do_forward_layer(Layer* layer, std::vector<VkImageMat>& blob_mats_gpu_image, VkCompute& cmd, const Option& opt)
+{
     if (layer->one_blob_only)
     {
         // load bottom blob
@@ -2131,33 +2139,40 @@ void Net::clear()
 #endif // NCNN_VULKAN
 }
 
-Extractor Net::create_extractor(){
+Extractor Net::create_extractor()
+{
     return Extractor(this, d->blobs.size());
 }
 
-const std::vector<int>& Net::input_indexes(){
+const std::vector<int>& Net::input_indexes()
+{
     return d->input_blob_indexes;
 }
 
-const std::vector<int>& Net::output_indexes(){
+const std::vector<int>& Net::output_indexes()
+{
     return d->output_blob_indexes;
 }
 
 #if NCNN_STRING
-const std::vector<const char*>& Net::input_names(){
+const std::vector<const char*>& Net::input_names()
+{
     return d->input_blob_names;
 }
 
-const std::vector<const char*>& Net::output_names(){
+const std::vector<const char*>& Net::output_names()
+{
     return d->output_blob_names;
 }
 #endif
 
-const std::vector<Blob>& Net::blobs(){
+const std::vector<Blob>& Net::blobs()
+{
     return d->blobs;
 }
 
-const std::vector<Layer*>& Net::layers(){
+const std::vector<Layer*>& Net::layers()
+{
     return d->layers;
 }
 
@@ -2182,13 +2197,15 @@ void Net::set_vulkan_device(const VulkanDevice* _vkdev)
     d->vkdev = _vkdev;
 }
 
-const VulkanDevice* Net::vulkan_device(){
+const VulkanDevice* Net::vulkan_device()
+{
     return d->vkdev;
 }
 #endif // NCNN_VULKAN
 
 #if NCNN_STRING
-int Net::find_blob_index_by_name(const char* name){
+int Net::find_blob_index_by_name(const char* name)
+{
     for (size_t i = 0; i < d->blobs.size(); i++)
     {
         const Blob& blob = d->blobs[i];
@@ -2202,7 +2219,8 @@ int Net::find_blob_index_by_name(const char* name){
     return -1;
 }
 
-int Net::find_layer_index_by_name(const char* name){
+int Net::find_layer_index_by_name(const char* name)
+{
     for (size_t i = 0; i < d->layers.size(); i++)
     {
         Layer* layer = d->layers[i];
