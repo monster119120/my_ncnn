@@ -123,7 +123,7 @@ static int convolution1d(const Mat& bottom_blob, Mat& top_blob, const Mat& weigh
     return 0;
 }
 
-int Convolution1D:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Convolution1D::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     Mat bottom_blob_bordered;
     make_padding(bottom_blob, bottom_blob_bordered, opt);

@@ -111,7 +111,7 @@ int Convolution1D_arm::destroy_pipeline(const Option& /*opt*/)
     return 0;
 }
 
-int Convolution1D_arm:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Convolution1D_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

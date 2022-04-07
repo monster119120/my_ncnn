@@ -40,7 +40,7 @@ Requantize_arm::Requantize_arm()
 #endif // __ARM_NEON
 }
 
-int Requantize_arm:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Requantize_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int dims = bottom_blob.dims;
     int elempack = bottom_blob.elempack;

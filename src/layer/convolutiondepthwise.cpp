@@ -285,7 +285,7 @@ static int convolutiondepthwise(const Mat& bottom_blob, Mat& top_blob, const Mat
     return 0;
 }
 
-int ConvolutionDepthWise:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int ConvolutionDepthWise::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     // convolv with NxN kernel
     // value = value + bias

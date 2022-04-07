@@ -94,7 +94,7 @@ int Convolution1D_x86::destroy_pipeline(const Option& /*opt*/)
     return 0;
 }
 
-int Convolution1D_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Convolution1D_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int w = bottom_blob.w;
     int h = bottom_blob.h;

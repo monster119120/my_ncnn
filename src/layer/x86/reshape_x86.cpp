@@ -29,7 +29,7 @@ Reshape_x86::Reshape_x86()
 #endif // __SSE2__
 }
 
-int Reshape_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Reshape_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elempack = bottom_blob.elempack;
 

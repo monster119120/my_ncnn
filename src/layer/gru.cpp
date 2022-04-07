@@ -160,7 +160,7 @@ static int gru(const Mat& bottom_blob, Mat& top_blob, int reverse, const Mat& we
     return 0;
 }
 
-int GRU:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int GRU::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int T = bottom_blob.h;
 

@@ -25,7 +25,7 @@ Packing_mips::Packing_mips()
     support_packing = true;
 }
 
-int Packing_mips:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Packing_mips::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

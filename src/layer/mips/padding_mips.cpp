@@ -34,7 +34,7 @@ Padding_mips::Padding_mips()
 #endif // __mips_msa
 }
 
-int Padding_mips:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Padding_mips::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     if (top == 0 && bottom == 0 && left == 0 && right == 0 && front == 0 && behind == 0)
     {

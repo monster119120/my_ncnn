@@ -455,7 +455,7 @@ int Convolution_arm::destroy_pipeline(const Option& opt)
     return 0;
 }
 
-int Convolution_arm:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Convolution_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     fprintf(stderr, "arm conv\n");
 #if NCNN_INT8

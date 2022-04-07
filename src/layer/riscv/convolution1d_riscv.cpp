@@ -107,7 +107,7 @@ int Convolution1D_riscv::destroy_pipeline(const Option& /*opt*/)
     return 0;
 }
 
-int Convolution1D_riscv:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Convolution1D_riscv::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int elembits = bottom_blob.elembits();
 

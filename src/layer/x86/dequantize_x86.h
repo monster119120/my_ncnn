@@ -24,7 +24,7 @@ class Dequantize_x86 : virtual public Dequantize
 public:
     Dequantize_x86();
 
-    virtual int  forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
+    virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
 };
 
 } // namespace ncnn

@@ -32,7 +32,7 @@ Dequantize_x86::Dequantize_x86()
 #endif // __SSE2__
 }
 
-int Dequantize_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Dequantize_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     int dims = bottom_blob.dims;
     int elempack = bottom_blob.elempack;

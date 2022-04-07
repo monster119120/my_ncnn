@@ -52,7 +52,7 @@ int Pooling_riscv::create_pipeline(const Option& /*opt*/)
     return 0;
 }
 
-int Pooling_riscv:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Pooling_riscv::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     if (adaptive_pooling)
     {

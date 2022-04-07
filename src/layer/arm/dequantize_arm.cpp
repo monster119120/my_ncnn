@@ -35,7 +35,7 @@ Dequantize_arm::Dequantize_arm()
 #endif
 }
 
-int Dequantize_arm:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Dequantize_arm::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     // assert bottom_blob.elembits() == 32
 

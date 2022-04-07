@@ -506,7 +506,7 @@ int Convolution_x86::destroy_pipeline(const Option& opt)
     return 0;
 }
 
-int Convolution_x86:: forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
+int Convolution_x86::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt)
 {
     // convolv with NxN kernel
     // value = value + bias
