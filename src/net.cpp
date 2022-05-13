@@ -199,55 +199,55 @@ int NetPrivate::forward_layer(int layer_index, std::vector<Mat>& blob_mats, Opti
     opt.use_reserved_0 = false;
     int next_index = layer_index + 1;
     if (layer->type == "Convolution"
-        && ((Convolution*)layer)->activation_type == 1       // Faster R-CNN
-//        && layers[next_index]->typeindex == LayerType::ReLU     // Squeezenet/ vgg
-    ){
+            && ((Convolution*)layer)->activation_type == 1 // Faster R-CNN
+            //        && layers[next_index]->typeindex == LayerType::ReLU     // Squeezenet/ vgg
+       )
+    {
         opt.use_reserved_0 = true;
     }
 
-
     int ret = do_forward_layer(layer, blob_mats, opt);
-//#if NCNN_BENCHMARK
-//    double end = get_current_time();
-//    if (layer->one_blob_only)
-//    {
-////        int top_blob_index = layer->tops[0];
-//        //        benchmark(layer, bottom_blob, blob_mats[top_blob_index], start, end);
-//        fprintf(stderr, "%-4d %8.2lf", layer_index, end - start);
-//    }
-//    else
-//    {
-//        //        benchmark(layer, start, end);
-//        fprintf(stderr, "%-4d %8.2lf", layer_index, end - start);
-//    }
-//#endif
-//    if (layer->type == "Convolution"
-//        && ((Convolution*)layer)->activation_type == 1
-//        //        && layers[next_index]->typeindex == LayerType::ReLU
-//        && ((Convolution*)layer)->kernel_w > 2
-//    ){
-//        fprintf(stderr, " mlsys\n");
-//        //        opt.use_reserved_0 = true;
-//    }else{
-//        fprintf(stderr, " raw\n");
-//    }
+    //#if NCNN_BENCHMARK
+    //    double end = get_current_time();
+    //    if (layer->one_blob_only)
+    //    {
+    ////        int top_blob_index = layer->tops[0];
+    //        //        benchmark(layer, bottom_blob, blob_mats[top_blob_index], start, end);
+    //        fprintf(stderr, "%-4d %8.2lf", layer_index, end - start);
+    //    }
+    //    else
+    //    {
+    //        //        benchmark(layer, start, end);
+    //        fprintf(stderr, "%-4d %8.2lf", layer_index, end - start);
+    //    }
+    //#endif
+    //    if (layer->type == "Convolution"
+    //        && ((Convolution*)layer)->activation_type == 1
+    //        //        && layers[next_index]->typeindex == LayerType::ReLU
+    //        && ((Convolution*)layer)->kernel_w > 2
+    //    ){
+    //        fprintf(stderr, " mlsys\n");
+    //        //        opt.use_reserved_0 = true;
+    //    }else{
+    //        fprintf(stderr, " raw\n");
+    //    }
     if (ret != 0)
         return ret;
-//    int ret = do_forward_layer(layer, blob_mats, opt);
-//#if NCNN_BENCHMARK
-//    double end = get_current_time();
-//    if (layer->one_blob_only)
-//    {
-//        int top_blob_index = layer->tops[0];
-//        benchmark(layer, bottom_blob, blob_mats[top_blob_index], start, end);
-//    }
-//    else
-//    {
-//        benchmark(layer, start, end);
-//    }
-//#endif
-//    if (ret != 0)
-//        return ret;
+    //    int ret = do_forward_layer(layer, blob_mats, opt);
+    //#if NCNN_BENCHMARK
+    //    double end = get_current_time();
+    //    if (layer->one_blob_only)
+    //    {
+    //        int top_blob_index = layer->tops[0];
+    //        benchmark(layer, bottom_blob, blob_mats[top_blob_index], start, end);
+    //    }
+    //    else
+    //    {
+    //        benchmark(layer, start, end);
+    //    }
+    //#endif
+    //    if (ret != 0)
+    //        return ret;
 
     //     NCNN_LOGE("forward_layer %d %s done", layer_index, layer->name.c_str());
     //     const Mat& blob = blob_mats[layer->tops[0]];
@@ -2607,7 +2607,7 @@ int Extractor::extract(int blob_index, Mat& feat, int type)
             ret = d->net->d->forward_layer(layer_index, d->blob_mats, d->opt);
         }
 #else
-//        fprintf(stderr, "start forward\n");
+        //        fprintf(stderr, "start forward\n");
         ret = d->net->d->forward_layer(layer_index, d->blob_mats, d->opt);
 //        fprintf(stderr, "end forward\n");
 #endif // NCNN_VULKAN

@@ -140,10 +140,9 @@ int Convolution::create_pipeline(const Option& opt)
     return 0;
 }
 
-
 static int mlsys_convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data, const Mat& bias_data,
-                       int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h,
-                       int activation_type, const Mat& activation_params, const Option& opt, Mat& last_x, Mat& last_y, Mat& w_norm2)
+                             int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h,
+                             int activation_type, const Mat& activation_params, const Option& opt, Mat& last_x, Mat& last_y, Mat& w_norm2)
 {
     //    fprintf(stderr, "卷卷卷@@raw conv, activation type is %d\n", activation_type);
     const int w = in_x.w;
@@ -176,19 +175,23 @@ static int mlsys_convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data
         }
     }
 
-    if (last_x.total() <= 0){
+    if (last_x.total() <= 0)
+    {
         //        int less_0_count = 0;
         w_norm2.create(outch);
 
         /**
          * calculate w_norm2
          */
-        float* w_norm2_data = (float*) w_norm2.data;
-        for (int k=0; k<outch; k++){
+        float* w_norm2_data = (float*)w_norm2.data;
+        for (int k = 0; k < outch; k++)
+        {
             const float* kptr = (const float*)weight_data.data + maxk * inch * k;
             w_norm2_data[k] = 0.0;
-            for (int q = 0; q < inch; q++){
-                for (int w_i = 0; w_i < maxk; w_i++){
+            for (int q = 0; q < inch; q++)
+            {
+                for (int w_i = 0; w_i < maxk; w_i++)
+                {
                     w_norm2_data[k] += kptr[w_i] * kptr[w_i];
                 }
                 kptr += maxk;
@@ -232,7 +235,6 @@ static int mlsys_convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data
                             float val = sptr[space_ofs[w_i]]; // 20.72
                             float wt = kptr[w_i];
                             y_kij += val * wt; // 41.45
-
                         }
 
                         kptr += maxk;
@@ -248,7 +250,9 @@ static int mlsys_convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data
             }
         }
         //        fprintf(stderr, "less 0 count = %d\n",less_0_count);
-    }else{
+    }
+    else
+    {
         for (int i = 0; i < outh; i++)
         {
             for (int j = 0; j < outw; j++)
@@ -273,8 +277,8 @@ static int mlsys_convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data
                     }
                 }
 
-                float dx_norm = sqrt(dx2_sum);  // 1.2%的开销
-                                               //                float dx_norm = 0.0;              // 15773
+                float dx_norm = sqrt(dx2_sum); // 1.2%的开销
+                //                float dx_norm = 0.0;              // 15773
 
                 for (int k = 0; k < outch; k++)
                 {
@@ -302,13 +306,16 @@ static int mlsys_convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data
 
                     out_bar_ptr += i * outw;
 
-//                    total_count += 1;
-                    if (out_bar_ptr[j] + norm_norm <= -y_kij){
+                    //                    total_count += 1;
+                    if (out_bar_ptr[j] + norm_norm <= -y_kij)
+                    {
                         outptr[j] = 0;
-//                        reduced_count += 1;
-//                        max_reduce_count += 1;
+                        //                        reduced_count += 1;
+                        //                        max_reduce_count += 1;
                         out_bar_ptr[j] += norm_norm;
-                    }else{
+                    }
+                    else
+                    {
                         out_bar_ptr[j] = -y_kij;
                         for (int q = 0; q < inch; q++)
                         {
@@ -328,31 +335,29 @@ static int mlsys_convolution(const Mat& in_x, Mat& out_y, const Mat& weight_data
                         out_bar_ptr[j] += y_kij;
                         outptr[j] = activation_ss(y_kij, activation_type, activation_params);
 
-//                        if (y_kij <= 0)
-//                            max_reduce_count += 1;
+                        //                        if (y_kij <= 0)
+                        //                            max_reduce_count += 1;
                     }
                 }
             }
         }
-//        fprintf(stderr, "%.4f/%.4f=%.4f\n", reduced_count, total_count, reduced_count/total_count);
-//        fprintf(stderr, "%.4f/%.4f=%.4f <-\n", max_reduce_count, total_count, max_reduce_count/total_count);
+        //        fprintf(stderr, "%.4f/%.4f=%.4f\n", reduced_count, total_count, reduced_count/total_count);
+        //        fprintf(stderr, "%.4f/%.4f=%.4f <-\n", max_reduce_count, total_count, max_reduce_count/total_count);
 
-//        fprintf(stderr, "%.2f\n",  reduced_count/total_count);
-//        fprintf(stderr, "%.2f <-\n",  max_reduce_count/total_count);
+        //        fprintf(stderr, "%.2f\n",  reduced_count/total_count);
+        //        fprintf(stderr, "%.2f <-\n",  max_reduce_count/total_count);
 
         last_x.clone_from(in_x); //没有这行是15899，加了是16058
     }
 
-
     return 0;
 }
 
-
 // 上面，左面，(t-1)全比较
 static int temporal_spatial_convolution1(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_data, const Mat& bias_data,
-                                        int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h,
-                                        int activation_type, const Mat& activation_params, const Option& opt, Mat& last_x, Mat& last_y, Mat& w_norm2,
-                                        Mat& last_y_col, Mat& last_y_row)
+        int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h,
+        int activation_type, const Mat& activation_params, const Option& opt, Mat& last_x, Mat& last_y, Mat& w_norm2,
+        Mat& last_y_col, Mat& last_y_row)
 {
     const int w = bottom_blob.w;
     const int inch = bottom_blob.c;
@@ -391,26 +396,30 @@ static int temporal_spatial_convolution1(const Mat& bottom_blob, Mat& top_blob, 
     float norm_norm_col;
     float delta_x_col;
 
-    float norm_norm_row;    // i的norm norm
+    float norm_norm_row; // i的norm norm
     float delta_x_row;
 
     float* last_y_row_ptr = nullptr;
-    float* last_y_col_ptr = (float*) last_y_col.data;
+    float* last_y_col_ptr = (float*)last_y_col.data;
 
-    if (last_x.total() <= 0){
-//        fprintf(stderr, "enter\n");
+    if (last_x.total() <= 0)
+    {
+        //        fprintf(stderr, "enter\n");
         w_norm2.create(outch);
         last_y_col.create(outch);
-        last_y_row.create(outch, outw);         // outw是h
+        last_y_row.create(outch, outw); // outw是h
         /**
          * calculate w_norm2
          */
-        float* w_norm2_data = (float*) w_norm2.data;
-        for (int k=0; k<outch; k++){
+        float* w_norm2_data = (float*)w_norm2.data;
+        for (int k = 0; k < outch; k++)
+        {
             const float* kptr = (const float*)weight_data.data + maxk * inch * k;
             w_norm2_data[k] = 0.0;
-            for (int q = 0; q < inch; q++){
-                for (int w_i = 0; w_i < maxk; w_i++){
+            for (int q = 0; q < inch; q++)
+            {
+                for (int w_i = 0; w_i < maxk; w_i++)
+                {
                     w_norm2_data[k] += kptr[w_i] * kptr[w_i];
                 }
                 kptr += maxk;
@@ -453,7 +462,6 @@ static int temporal_spatial_convolution1(const Mat& bottom_blob, Mat& top_blob, 
                             float val = sptr[space_ofs[w_i]]; // 20.72
                             float wt = kptr[w_i];
                             y_kij += val * wt; // 41.45
-
                         }
 
                         kptr += maxk;
@@ -469,7 +477,9 @@ static int temporal_spatial_convolution1(const Mat& bottom_blob, Mat& top_blob, 
             }
         }
         //        fprintf(stderr, "less 0 count = %d\n",less_0_count);
-    }else{
+    }
+    else
+    {
         //        fprintf(stderr, "啊啊啊啊啊\n");
         float reduced_count = 0.0;
         float total_count = 0.0;
@@ -481,70 +491,70 @@ static int temporal_spatial_convolution1(const Mat& bottom_blob, Mat& top_blob, 
             last_y_row_ptr = (float*)last_y_row.data;
             for (int j = 0; j < outw; j++)
             {
-//                delta_x_col = 0.0;
-//                delta_x_row = 0.0;
-//                if (j!=0){
-//                /** 上一列的基准
-//                 * calculate ||x(i, j) - x(i, j-1)||
-//                 */
-//                    for (int q = 0; q < inch; q++)
-//                    {
-//                        const Mat m = bottom_blob.channel(q);
-//                        const float* sptr = m.row(i * stride_h) + j * stride_w;
-//
-//                        const float* prev_sptr = sptr - stride_w;
-//
-//                        for (int w_i = 0; w_i < maxk; w_i++) // 29.23
-//                        {
-//                            float delta = sptr[space_ofs[w_i]] - prev_sptr[space_ofs[w_i]];
-//                            delta_x_col += delta * delta;
-//                        }
-//                    }
-//                    delta_x_col = sqrt(delta_x_col);
-//                }
-//
-//                if (i!=0){
-//                /** 上一行的基准
-//                 * calculate ||x(i, j) - x(i-1, j)||
-//                 */
-//                    for (int q = 0; q < inch; q++)
-//                    {
-//                        const Mat m = bottom_blob.channel(q);
-//                        const float* sptr = m.row(i * stride_h) + j * stride_w;
-//
-//                        const float* prev_sptr = m.row((i-1) * stride_h) + j * stride_w;
-//
-//                        for (int w_i = 0; w_i < maxk; w_i++) // 29.23
-//                        {
-//                            float delta = sptr[space_ofs[w_i]] - prev_sptr[space_ofs[w_i]];
-//                            delta_x_row += delta * delta;
-//                        }
-//                    }
-//                    delta_x_row = sqrt(delta_x_row);
-//                }
-//
-//
-//                /**
-//                 * compute dx_norm = || x_{ij}^{t} - x_{ij}^{t-1} ||
-//                 */
-//
-//                float dx2_sum = 0.0;
-//                for (int q = 0; q < inch; q++)
-//                {
-//                    const Mat& m = bottom_blob.channel(q);
-//                    const float* sptr = m.row(i * stride_h) + j * stride_w;
-//
-//                    const Mat& m_last_x = last_x.channel(q);
-//                    const float* sptr_last_x = m_last_x.row(i * stride_h) + j * stride_w;
-//
-//                    for (int w_i = 0; w_i < maxk; w_i++)
-//                    {
-//                        float val = sptr[space_ofs[w_i]];
-//                        float val_last_x = sptr_last_x[space_ofs[w_i]];
-//                        dx2_sum += (val - val_last_x) * (val - val_last_x);
-//                    }
-//                }
-//                float dx_norm = sqrt(dx2_sum);
+                //                delta_x_col = 0.0;
+                //                delta_x_row = 0.0;
+                //                if (j!=0){
+                //                /** 上一列的基准
+                //                 * calculate ||x(i, j) - x(i, j-1)||
+                //                 */
+                //                    for (int q = 0; q < inch; q++)
+                //                    {
+                //                        const Mat m = bottom_blob.channel(q);
+                //                        const float* sptr = m.row(i * stride_h) + j * stride_w;
+                //
+                //                        const float* prev_sptr = sptr - stride_w;
+                //
+                //                        for (int w_i = 0; w_i < maxk; w_i++) // 29.23
+                //                        {
+                //                            float delta = sptr[space_ofs[w_i]] - prev_sptr[space_ofs[w_i]];
+                //                            delta_x_col += delta * delta;
+                //                        }
+                //                    }
+                //                    delta_x_col = sqrt(delta_x_col);
+                //                }
+                //
+                //                if (i!=0){
+                //                /** 上一行的基准
+                //                 * calculate ||x(i, j) - x(i-1, j)||
+                //                 */
+                //                    for (int q = 0; q < inch; q++)
+                //                    {
+                //                        const Mat m = bottom_blob.channel(q);
+                //                        const float* sptr = m.row(i * stride_h) + j * stride_w;
+                //
+                //                        const float* prev_sptr = m.row((i-1) * stride_h) + j * stride_w;
+                //
+                //                        for (int w_i = 0; w_i < maxk; w_i++) // 29.23
+                //                        {
+                //                            float delta = sptr[space_ofs[w_i]] - prev_sptr[space_ofs[w_i]];
+                //                            delta_x_row += delta * delta;
+                //                        }
+                //                    }
+                //                    delta_x_row = sqrt(delta_x_row);
+                //                }
+                //
+                //
+                //                /**
+                //                 * compute dx_norm = || x_{ij}^{t} - x_{ij}^{t-1} ||
+                //                 */
+                //
+                //                float dx2_sum = 0.0;
+                //                for (int q = 0; q < inch; q++)
+                //                {
+                //                    const Mat& m = bottom_blob.channel(q);
+                //                    const float* sptr = m.row(i * stride_h) + j * stride_w;
+                //
+                //                    const Mat& m_last_x = last_x.channel(q);
+                //                    const float* sptr_last_x = m_last_x.row(i * stride_h) + j * stride_w;
+                //
+                //                    for (int w_i = 0; w_i < maxk; w_i++)
+                //                    {
+                //                        float val = sptr[space_ofs[w_i]];
+                //                        float val_last_x = sptr_last_x[space_ofs[w_i]];
+                //                        dx2_sum += (val - val_last_x) * (val - val_last_x);
+                //                    }
+                //                }
+                //                float dx_norm = sqrt(dx2_sum);
 
                 delta_x_col = 0.0;
                 delta_x_row = 0.0;
@@ -555,18 +565,20 @@ static int temporal_spatial_convolution1(const Mat& bottom_blob, Mat& top_blob, 
                 {
                     const Mat& m = bottom_blob.channel(q);
                     const float* sptr = m.row(i * stride_h) + j * stride_w;
-//                    auto stride_delta_x = (unsigned char*)m.data + (size_t)m.w * i * stride_h * m.elemsize + j * stride_w;
-//                    const float* sptr = (const float*)(stride_delta_x);
+                    //                    auto stride_delta_x = (unsigned char*)m.data + (size_t)m.w * i * stride_h * m.elemsize + j * stride_w;
+                    //                    const float* sptr = (const float*)(stride_delta_x);
 
                     const Mat& m_last_x = last_x.channel(q);
                     const float* sptr_last_x = m_last_x.row(i * stride_h) + j * stride_w;
 
-                    if (i!=0){
-                        prev_i_sptr = m.row((i-1) * stride_h) + j * stride_w;
-//                        prev_i_sptr = (const float*)(stride_delta_x - (size_t)m.w * stride_h * m.elemsize);
+                    if (i != 0)
+                    {
+                        prev_i_sptr = m.row((i - 1) * stride_h) + j * stride_w;
+                        //                        prev_i_sptr = (const float*)(stride_delta_x - (size_t)m.w * stride_h * m.elemsize);
                     }
 
-                    if (j!=0){
+                    if (j != 0)
+                    {
                         prev_j_sptr = sptr - stride_w;
                     }
 
@@ -577,22 +589,26 @@ static int temporal_spatial_convolution1(const Mat& bottom_blob, Mat& top_blob, 
                         float temporal_diff = sptr_last_x[w_i_offset] - base;
                         dx2_sum += temporal_diff * temporal_diff;
 
-                        if (i!=0){
+                        if (i != 0)
+                        {
                             float spatial_i_diff = prev_i_sptr[w_i_offset] - base;
                             delta_x_row += spatial_i_diff * spatial_i_diff;
                         }
 
-                        if (j!=0){
+                        if (j != 0)
+                        {
                             float spatial_j_diff = prev_j_sptr[w_i_offset] - base;
                             delta_x_col += spatial_j_diff * spatial_j_diff;
                         }
                     }
                 }
-                if (i!=0){
+                if (i != 0)
+                {
                     delta_x_row = sqrt(delta_x_row);
                 }
 
-                if (j!=0){
+                if (j != 0)
+                {
                     delta_x_col = sqrt(delta_x_col);
                 }
                 float dx_norm = sqrt(dx2_sum);
@@ -608,7 +624,6 @@ static int temporal_spatial_convolution1(const Mat& bottom_blob, Mat& top_blob, 
 
                     const float* kptr = (const float*)weight_data + maxk * inch * k;
 
-
                     const float* w_norm2_ptr = (const float*)w_norm2.data;
                     float* out_bar_ptr = last_y.channel(k);
                     out_bar_ptr += i * outw;
@@ -619,34 +634,39 @@ static int temporal_spatial_convolution1(const Mat& bottom_blob, Mat& top_blob, 
                     float norm_norm = out_bar_ptr[j] + w_norm2_ptr[k] * dx_norm;
                     min_norm_norm = norm_norm;
 
-                    if (j!=0){
+                    if (j != 0)
+                    {
                         norm_norm_col = last_y_col_ptr[k] + delta_x_col * w_norm2_ptr[k];
                         min_norm_norm = std::min(min_norm_norm, norm_norm_col);
                     }
 
-                    if (i!=0){
+                    if (i != 0)
+                    {
                         norm_norm_row = last_y_row_ptr[k] + delta_x_row * w_norm2_ptr[k];
                         min_norm_norm = std::min(min_norm_norm, norm_norm_row);
                     }
 
-//                    total_count+=1;
-                    if (min_norm_norm + y_kij <= 0){
-//                        if (i!=0 && norm_norm_row==min_norm_norm)
-//                            our_count += 1;
-//                        else if (j!=0 && norm_norm_col==min_norm_norm)
-//                            our_count += 1;
-//                        else
-//                            mlsys_count += 1;
+                    //                    total_count+=1;
+                    if (min_norm_norm + y_kij <= 0)
+                    {
+                        //                        if (i!=0 && norm_norm_row==min_norm_norm)
+                        //                            our_count += 1;
+                        //                        else if (j!=0 && norm_norm_col==min_norm_norm)
+                        //                            our_count += 1;
+                        //                        else
+                        //                            mlsys_count += 1;
                         last_y_col_ptr[k] = min_norm_norm;
                         last_y_row_ptr[k] = min_norm_norm;
                         out_bar_ptr[j] = min_norm_norm;
                         outptr[j] = 0;
-//                        reduced_count += 1;
-//                        max_reduce_count += 1;
-                    }else{
-//                        out_bar_ptr[j] = -y_kij;
-//                        last_y_col_ptr[k] = -y_kij;
-//                        last_y_row_ptr[k] = -y_kij;
+                        //                        reduced_count += 1;
+                        //                        max_reduce_count += 1;
+                    }
+                    else
+                    {
+                        //                        out_bar_ptr[j] = -y_kij;
+                        //                        last_y_col_ptr[k] = -y_kij;
+                        //                        last_y_row_ptr[k] = -y_kij;
                         for (int q = 0; q < inch; q++)
                         {
                             const Mat& m = bottom_blob.channel(q);
@@ -662,11 +682,16 @@ static int temporal_spatial_convolution1(const Mat& bottom_blob, Mat& top_blob, 
                             kptr += maxk;
                         }
 
-                        if (bias_term){
+                        if (bias_term)
+                        {
                             out_bar_ptr[j] = y_kij - bias_data[k];
-                            last_y_col_ptr[k] = y_kij - bias_data[k];;
-                            last_y_row_ptr[k] = y_kij - bias_data[k];;
-                        }else{
+                            last_y_col_ptr[k] = y_kij - bias_data[k];
+                            ;
+                            last_y_row_ptr[k] = y_kij - bias_data[k];
+                            ;
+                        }
+                        else
+                        {
                             out_bar_ptr[j] = y_kij;
                             last_y_col_ptr[k] = y_kij;
                             last_y_row_ptr[k] = y_kij;
@@ -674,8 +699,8 @@ static int temporal_spatial_convolution1(const Mat& bottom_blob, Mat& top_blob, 
 
                         outptr[j] = activation_ss(y_kij, activation_type, activation_params);
 
-//                        if (y_kij <= 0)
-//                            max_reduce_count += 1;
+                        //                        if (y_kij <= 0)
+                        //                            max_reduce_count += 1;
                     }
                 }
                 last_y_row_ptr += outch;
@@ -684,25 +709,22 @@ static int temporal_spatial_convolution1(const Mat& bottom_blob, Mat& top_blob, 
         //        fprintf(stderr, "%.4f/%.4f=%.4f\n", reduced_count, total_count, reduced_count/total_count);
         //        fprintf(stderr, "%.4f/%.4f=%.4f <-\n", max_reduce_count, total_count, max_reduce_count/total_count);
 
-//                fprintf(stderr, "%.2f\n",  reduced_count/total_count);
+        //                fprintf(stderr, "%.2f\n",  reduced_count/total_count);
         //        fprintf(stderr, "%.2f <-\n",  max_reduce_count/total_count);
 
-//        fprintf(stderr, "进入原有的:%.2f \t 进入我们的:%.2f\n",  mlsys_count/reduced_count, our_count/reduced_count);
+        //        fprintf(stderr, "进入原有的:%.2f \t 进入我们的:%.2f\n",  mlsys_count/reduced_count, our_count/reduced_count);
 
         last_x.clone_from(bottom_blob); //没有这行是15899，加了是16058
     }
 
-
     return 0;
 }
 
-
-
 // 如果\delta x过大，就采用我们的方法
 static int select_temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_data, const Mat& bias_data,
-                                         int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h,
-                                         int activation_type, const Mat& activation_params, const Option& opt, Mat& last_x, Mat& last_y, Mat& w_norm2,
-                                         Mat& last_y_col, Mat& last_y_row, float& last_x_sparsity)
+        int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h,
+        int activation_type, const Mat& activation_params, const Option& opt, Mat& last_x, Mat& last_y, Mat& w_norm2,
+        Mat& last_y_col, Mat& last_y_row, float& last_x_sparsity)
 {
     const int w = bottom_blob.w;
     const int inch = bottom_blob.c;
@@ -742,7 +764,7 @@ static int select_temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_
     float norm_norm_col;
     float delta_x_col;
 
-    float norm_norm_row;    // i的norm norm
+    float norm_norm_row; // i的norm norm
     float delta_x_row;
 
     if (w_norm2.total() <= 0)
@@ -772,8 +794,9 @@ static int select_temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_
     }
 
     float* last_y_row_ptr = nullptr;
-    float* last_y_col_ptr = (float*) last_y_col.data;
-    if (false){
+    float* last_y_col_ptr = (float*)last_y_col.data;
+    if (false)
+    {
         /**
          * exact compute
         */
@@ -816,8 +839,8 @@ static int select_temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_
             }
         }
     }
-    else{
-
+    else
+    {
         for (int i = 0; i < outh; i++)
         {
             last_y_row_ptr = (float*)last_y_row.data;
@@ -825,10 +848,11 @@ static int select_temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_
             {
                 delta_x_col = 0.0;
                 delta_x_row = 0.0;
-                if (j!=0){
-            /** 上一列的基准
-             * calculate ||x(i, j) - x(i, j-1)||
-             */
+                if (j != 0)
+                {
+                    /** 上一列的基准
+                    * calculate ||x(i, j) - x(i, j-1)||
+                    */
                     for (int q = 0; q < inch; q++)
                     {
                         const Mat m = bottom_blob.channel(q);
@@ -845,16 +869,17 @@ static int select_temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_
                     delta_x_col = sqrt(delta_x_col);
                 }
 
-                if (i!=0){
-            /** 上一行的基准
-             * calculate ||x(i, j) - x(i-1, j)||
-             */
+                if (i != 0)
+                {
+                    /** 上一行的基准
+                    * calculate ||x(i, j) - x(i-1, j)||
+                    */
                     for (int q = 0; q < inch; q++)
                     {
                         const Mat m = bottom_blob.channel(q);
                         const float* sptr = m.row(i * stride_h) + j * stride_w;
 
-                        const float* prev_sptr = m.row((i-1) * stride_h) + j * stride_w;
+                        const float* prev_sptr = m.row((i - 1) * stride_h) + j * stride_w;
 
                         for (int w_i = 0; w_i < maxk; w_i++) // 29.23
                         {
@@ -879,27 +904,29 @@ static int select_temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_
 
                     total += 1;
 
-                    if (j!=0){
+                    if (j != 0)
+                    {
                         norm_norm_col = last_y_col_ptr[k] + delta_x_col * w_norm2[k];
                         min_norm_norm = norm_norm_col;
                     }
 
-                    if (i!=0){
+                    if (i != 0)
+                    {
                         norm_norm_row = last_y_row_ptr[k] + delta_x_row * w_norm2[k];
-                        if(j!=0)
+                        if (j != 0)
                             min_norm_norm = std::min(norm_norm_row, min_norm_norm);
                         else
                             min_norm_norm = norm_norm_row;
                     }
 
-
-                    if ((i!=0||j!=0) && min_norm_norm + y_kij <= 0){
+                    if ((i != 0 || j != 0) && min_norm_norm + y_kij <= 0)
+                    {
                         last_y_col_ptr[k] = min_norm_norm;
                         last_y_row_ptr[k] = min_norm_norm;
                         outptr[j] = 0;
-
-
-                    }else{
+                    }
+                    else
+                    {
                         last_y_col_ptr[k] = -y_kij;
                         last_y_row_ptr[k] = -y_kij;
                         for (int q = 0; q < inch; q++)
@@ -912,11 +939,9 @@ static int select_temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_
                                 float val = sptr[space_ofs[w_i]];
                                 float wt = kptr[w_i];
                                 y_kij += val * wt;
-
                             }
                             kptr += maxk;
                         }
-
 
                         if (y_kij < 0)
                             reduce += 1;
@@ -935,7 +960,6 @@ static int select_temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_
 
     return 0;
 }
-
 
 // 只比较左边和(t-1)
 static int temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_data, const Mat& bias_data,
@@ -980,26 +1004,30 @@ static int temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_blob, c
     float norm_norm_col;
     float delta_x_col;
 
-//    float norm_norm_row;    // i的norm norm
-//    float delta_x_row;
+    //    float norm_norm_row;    // i的norm norm
+    //    float delta_x_row;
 
     float* last_y_row_ptr = nullptr;
-    float* last_y_col_ptr = (float*) last_y_col.data;
+    float* last_y_col_ptr = (float*)last_y_col.data;
 
-    if (last_x.total() <= 0){
+    if (last_x.total() <= 0)
+    {
         //        fprintf(stderr, "enter\n");
         w_norm2.create(outch);
         last_y_col.create(outch);
-        last_y_row.create(outch, outw);         // outw是h
+        last_y_row.create(outch, outw); // outw是h
         /**
          * calculate w_norm2
          */
-        float* w_norm2_data = (float*) w_norm2.data;
-        for (int k=0; k<outch; k++){
+        float* w_norm2_data = (float*)w_norm2.data;
+        for (int k = 0; k < outch; k++)
+        {
             const float* kptr = (const float*)weight_data.data + maxk * inch * k;
             w_norm2_data[k] = 0.0;
-            for (int q = 0; q < inch; q++){
-                for (int w_i = 0; w_i < maxk; w_i++){
+            for (int q = 0; q < inch; q++)
+            {
+                for (int w_i = 0; w_i < maxk; w_i++)
+                {
                     w_norm2_data[k] += kptr[w_i] * kptr[w_i];
                 }
                 kptr += maxk;
@@ -1042,7 +1070,6 @@ static int temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_blob, c
                             float val = sptr[space_ofs[w_i]]; // 20.72
                             float wt = kptr[w_i];
                             y_kij += val * wt; // 41.45
-
                         }
 
                         kptr += maxk;
@@ -1056,23 +1083,25 @@ static int temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_blob, c
             }
         }
         //        fprintf(stderr, "less 0 count = %d\n",less_0_count);
-    }else{
+    }
+    else
+    {
         //        fprintf(stderr, "啊啊啊啊啊\n");
-//        float reduced_count = 0.0;
-//        float total_count = 0.0;
-//        float max_reduce_count = 0.0;
-//        float our_count = 0.0;
-//        float mlsys_count = 0.0;
+        //        float reduced_count = 0.0;
+        //        float total_count = 0.0;
+        //        float max_reduce_count = 0.0;
+        //        float our_count = 0.0;
+        //        float mlsys_count = 0.0;
         float dx2_sum = 0.0;
-//        const float* prev_i_sptr = nullptr;
+        //        const float* prev_i_sptr = nullptr;
         const float* prev_j_sptr = nullptr;
         for (int i = 0; i < outh; i++)
         {
-//            last_y_row_ptr = (float*)last_y_row.data;
+            //            last_y_row_ptr = (float*)last_y_row.data;
             for (int j = 0; j < outw; j++)
             {
                 delta_x_col = 0.0;
-//                delta_x_row = 0.0;
+                //                delta_x_row = 0.0;
                 dx2_sum = 0.0;
                 for (int q = 0; q < inch; q++)
                 {
@@ -1082,11 +1111,12 @@ static int temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_blob, c
                     const Mat& m_last_x = last_x.channel(q);
                     const float* sptr_last_x = m_last_x.row(i * stride_h) + j * stride_w;
 
-//                    if (i!=0){
-//                        prev_i_sptr = m.row((i-1) * stride_h) + j * stride_w;
-//                    }
+                    //                    if (i!=0){
+                    //                        prev_i_sptr = m.row((i-1) * stride_h) + j * stride_w;
+                    //                    }
 
-                    if (j!=0){
+                    if (j != 0)
+                    {
                         prev_j_sptr = sptr - stride_w;
                     }
 
@@ -1097,22 +1127,24 @@ static int temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_blob, c
                         float temporal_diff = sptr_last_x[w_i_offset] - base;
                         dx2_sum += temporal_diff * temporal_diff;
 
-//                        if (i!=0){
-//                            float spatial_i_diff = prev_i_sptr[w_i_offset] - base;
-//                            delta_x_row += spatial_i_diff * spatial_i_diff;
-//                        }
+                        //                        if (i!=0){
+                        //                            float spatial_i_diff = prev_i_sptr[w_i_offset] - base;
+                        //                            delta_x_row += spatial_i_diff * spatial_i_diff;
+                        //                        }
 
-                        if (j!=0){
+                        if (j != 0)
+                        {
                             float spatial_j_diff = prev_j_sptr[w_i_offset] - base;
                             delta_x_col += spatial_j_diff * spatial_j_diff;
                         }
                     }
                 }
-//                if (i!=0){
-//                    delta_x_row = sqrt(delta_x_row);
-//                }
+                //                if (i!=0){
+                //                    delta_x_row = sqrt(delta_x_row);
+                //                }
 
-                if (j!=0){
+                if (j != 0)
+                {
                     delta_x_col = sqrt(delta_x_col);
                 }
                 float dx_norm = sqrt(dx2_sum);
@@ -1128,7 +1160,6 @@ static int temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_blob, c
 
                     const float* kptr = (const float*)weight_data + maxk * inch * k;
 
-
                     const float* w_norm2_ptr = (const float*)w_norm2.data;
                     float* out_bar_ptr = last_y.channel(k);
                     out_bar_ptr += i * outw;
@@ -1139,22 +1170,26 @@ static int temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_blob, c
                     float norm_norm = out_bar_ptr[j] + w_norm2_ptr[k] * dx_norm;
                     min_norm_norm = norm_norm;
 
-                    if (j!=0){
+                    if (j != 0)
+                    {
                         norm_norm_col = last_y_col_ptr[k] + delta_x_col * w_norm2_ptr[k];
                         min_norm_norm = std::min(min_norm_norm, norm_norm_col);
                     }
 
-//                    if (i!=0){
-//                        norm_norm_row = last_y_row_ptr[k] + delta_x_row * w_norm2_ptr[k];
-//                        min_norm_norm = std::min(min_norm_norm, norm_norm_row);
-//                    }
+                    //                    if (i!=0){
+                    //                        norm_norm_row = last_y_row_ptr[k] + delta_x_row * w_norm2_ptr[k];
+                    //                        min_norm_norm = std::min(min_norm_norm, norm_norm_row);
+                    //                    }
 
-                    if (min_norm_norm + y_kij <= 0){
+                    if (min_norm_norm + y_kij <= 0)
+                    {
                         last_y_col_ptr[k] = min_norm_norm;
-//                        last_y_row_ptr[k] = min_norm_norm;
+                        //                        last_y_row_ptr[k] = min_norm_norm;
                         out_bar_ptr[j] = min_norm_norm;
                         outptr[j] = 0;
-                    }else{
+                    }
+                    else
+                    {
                         for (int q = 0; q < inch; q++)
                         {
                             const Mat& m = bottom_blob.channel(q);
@@ -1170,20 +1205,24 @@ static int temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_blob, c
                             kptr += maxk;
                         }
 
-                        if (bias_term){
+                        if (bias_term)
+                        {
                             out_bar_ptr[j] = y_kij - bias_data[k];
-                            last_y_col_ptr[k] = y_kij - bias_data[k];;
-//                            last_y_row_ptr[k] = y_kij - bias_data[k];;
-                        }else{
+                            last_y_col_ptr[k] = y_kij - bias_data[k];
+                            ;
+                            //                            last_y_row_ptr[k] = y_kij - bias_data[k];;
+                        }
+                        else
+                        {
                             out_bar_ptr[j] = y_kij;
                             last_y_col_ptr[k] = y_kij;
-//                            last_y_row_ptr[k] = y_kij;
+                            //                            last_y_row_ptr[k] = y_kij;
                         }
 
                         outptr[j] = activation_ss(y_kij, activation_type, activation_params);
                     }
                 }
-//                last_y_row_ptr += outch;
+                //                last_y_row_ptr += outch;
             }
         }
         //        fprintf(stderr, "%.4f/%.4f=%.4f\n", reduced_count, total_count, reduced_count/total_count);
@@ -1197,15 +1236,14 @@ static int temporal_spatial_convolution(const Mat& bottom_blob, Mat& top_blob, c
         last_x.clone_from(bottom_blob); //没有这行是15899，加了是16058
     }
 
-
     return 0;
 }
 
 // 只比较左边和(t-1), 并且用了select-norm
 static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_data, const Mat& bias_data,
-                                        int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h,
-                                        int activation_type, const Mat& activation_params, const Option& opt, Mat& last_x, Mat& last_y, Mat& w_norm2,
-                                        Mat& last_y_col, Mat& last_y_row, Mat& w_norm2_lower)
+        int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h,
+        int activation_type, const Mat& activation_params, const Option& opt, Mat& last_x, Mat& last_y, Mat& w_norm2,
+        Mat& last_y_col, Mat& last_y_row, Mat& w_norm2_lower)
 {
     const int w = bottom_blob.w;
     const int inch = bottom_blob.c;
@@ -1248,31 +1286,33 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
     //    float delta_x_row;
 
     float* last_y_row_ptr = nullptr;
-    float* last_y_col_ptr = (float*) last_y_col.data;
+    float* last_y_col_ptr = (float*)last_y_col.data;
 
-    if (last_x.total() <= 0){
+    if (last_x.total() <= 0)
+    {
         //        fprintf(stderr, "enter\n");
         w_norm2.create(outch);
         w_norm2_lower.create(outch);
         last_y_col.create(outch);
-        last_y_row.create(outch, outw);         // outw是h
+        last_y_row.create(outch, outw); // outw是h
         /**
          * calculate w_norm2
          */
-        float* w_norm2_data_ptr = (float*) w_norm2.data;
-        float* w_norm2_data_lower_ptr = (float*) w_norm2_lower.data;    // 去掉第0个元素
-        for (int k=0; k<outch; k++){
+        float* w_norm2_data_ptr = (float*)w_norm2.data;
+        float* w_norm2_data_lower_ptr = (float*)w_norm2_lower.data; // 去掉第0个元素
+        for (int k = 0; k < outch; k++)
+        {
             const float* kptr = (const float*)weight_data.data + maxk * inch * k;
             w_norm2_data_ptr[k] = 0.0;
-            for (int q = 0; q < inch; q++){
-                for (int w_i = 0; w_i < maxk; w_i++){
+            for (int q = 0; q < inch; q++)
+            {
+                for (int w_i = 0; w_i < maxk; w_i++)
+                {
                     w_norm2_data_ptr[k] += kptr[w_i] * kptr[w_i];
                 }
                 kptr += maxk;
             }
-            w_norm2_data_lower_ptr[k] = sqrt(w_norm2_data_ptr[k] -
-                                             ((const float*)weight_data.data + maxk * inch * k)[0]
-                                             * ((const float*)weight_data.data + maxk * inch * k)[0]);
+            w_norm2_data_lower_ptr[k] = sqrt(w_norm2_data_ptr[k] - ((const float*)weight_data.data + maxk * inch * k)[0] * ((const float*)weight_data.data + maxk * inch * k)[0]);
             w_norm2_data_ptr[k] = sqrt(w_norm2_data_ptr[k]);
         }
 
@@ -1301,7 +1341,7 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
                     // 某层有64个卷积核，kptr即为64个卷积核之一
                     const float* kptr = (const float*)weight_data + maxk * inch * k;
 
-//                    total += 1;
+                    //                    total += 1;
                     for (int q = 0; q < inch; q++)
                     {
                         const Mat m = bottom_blob.channel(q);
@@ -1312,7 +1352,6 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
                             float val = sptr[space_ofs[w_i]]; // 20.72
                             float wt = kptr[w_i];
                             y_kij += val * wt; // 41.45
-
                         }
 
                         kptr += maxk;
@@ -1321,14 +1360,16 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
                         outptr_last_y[j] = y_kij - bias_data[k];
                     else
                         outptr_last_y[j] = y_kij;
-//                    if (y_kij <= 0)
-//                        reduce += 1;
+                    //                    if (y_kij <= 0)
+                    //                        reduce += 1;
                     outptr[j] = activation_ss(y_kij, activation_type, activation_params);
                 }
             }
         }
-//        fprintf(stderr, "%.0f %.0f\n", reduce, total);
-    }else{
+        //        fprintf(stderr, "%.0f %.0f\n", reduce, total);
+    }
+    else
+    {
         float dx2_sum = 0.0;
         //        const float* prev_i_sptr = nullptr;
         const float* prev_j_sptr = nullptr;
@@ -1350,7 +1391,6 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
                     const Mat& m_last_x = last_x.channel(q);
                     const float* sptr_last_x = m_last_x.row(i * stride_h) + j * stride_w;
 
-
                     for (int w_i = 0; w_i < 1; w_i++)
                     {
                         auto w_i_offset = space_ofs[w_i];
@@ -1365,7 +1405,6 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
                         //                            float spatial_i_diff = prev_i_sptr[w_i_offset] - base;
                         //                            delta_x_row += spatial_i_diff * spatial_i_diff;
                         //                        }
-
                     }
 
                     for (int w_i = 1; w_i < maxk; w_i++)
@@ -1374,8 +1413,6 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
                         float base = sptr[w_i_offset];
                         float temporal_diff = base - sptr_last_x[w_i_offset];
                         dx2_sum += temporal_diff * temporal_diff;
-
-
                     }
                 }
                 for (int q = 1; q < inch; q++)
@@ -1386,7 +1423,6 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
                     const Mat& m_last_x = last_x.channel(q);
                     const float* sptr_last_x = m_last_x.row(i * stride_h) + j * stride_w;
 
-
                     for (int w_i = 0; w_i < maxk; w_i++)
                     {
                         auto w_i_offset = space_ofs[w_i];
@@ -1394,7 +1430,6 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
                         float temporal_diff = base - sptr_last_x[w_i_offset];
 
                         dx2_sum += temporal_diff * temporal_diff;
-
                     }
                 }
 
@@ -1411,7 +1446,6 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
 
                     const float* kptr = (const float*)weight_data + maxk * inch * k;
 
-
                     const float* w_norm2_ptr = (const float*)w_norm2.data;
                     float* out_bar_ptr = last_y.channel(k);
                     out_bar_ptr += i * outw;
@@ -1427,11 +1461,14 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
 
                     min_norm_norm = norm_norm;
 
-                    if (min_norm_norm + y_kij <= 0){
+                    if (min_norm_norm + y_kij <= 0)
+                    {
                         last_y_col_ptr[k] = min_norm_norm;
                         out_bar_ptr[j] = min_norm_norm;
                         outptr[j] = 0;
-                    }else{
+                    }
+                    else
+                    {
                         for (int q = 0; q < inch; q++)
                         {
                             const Mat& m = bottom_blob.channel(q);
@@ -1447,11 +1484,15 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
                             kptr += maxk;
                         }
 
-                        if (bias_term){
+                        if (bias_term)
+                        {
                             out_bar_ptr[j] = y_kij - bias_data[k];
-                            last_y_col_ptr[k] = y_kij - bias_data[k];;
+                            last_y_col_ptr[k] = y_kij - bias_data[k];
+                            ;
                             //                            last_y_row_ptr[k] = y_kij - bias_data[k];;
-                        }else{
+                        }
+                        else
+                        {
                             out_bar_ptr[j] = y_kij;
                             last_y_col_ptr[k] = y_kij;
                             //                            last_y_row_ptr[k] = y_kij;
@@ -1483,7 +1524,6 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
 
                     prev_j_sptr = sptr - stride_w;
 
-
                     for (int w_i = 0; w_i < 1; w_i++)
                     {
                         auto w_i_offset = space_ofs[w_i];
@@ -1494,10 +1534,8 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
 
                         dx2_sum += temporal_diff * temporal_diff;
 
-
                         float spatial_j_diff = prev_j_sptr[w_i_offset] - base;
                         delta_x_col += spatial_j_diff * spatial_j_diff;
-
                     }
 
                     for (int w_i = 1; w_i < maxk; w_i++)
@@ -1531,10 +1569,8 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
 
                         float spatial_j_diff = prev_j_sptr[w_i_offset] - base;
                         delta_x_col += spatial_j_diff * spatial_j_diff;
-
                     }
                 }
-
 
                 delta_x_col = sqrt(delta_x_col);
 
@@ -1551,7 +1587,6 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
 
                     const float* kptr = (const float*)weight_data + maxk * inch * k;
 
-
                     const float* w_norm2_ptr = (const float*)w_norm2.data;
                     float* out_bar_ptr = last_y.channel(k);
                     out_bar_ptr += i * outw;
@@ -1560,7 +1595,7 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
                      * 注意our_bar_ptr是j，而last_y_col_ptr是k
                      */
                     float norm_norm;
-                    if (kptr[0] <=0 || record_xij_0 * kptr[0] > 0)
+                    if (kptr[0] <= 0 || record_xij_0 * kptr[0] > 0)
                         norm_norm = out_bar_ptr[j] + w_norm2_lower[k] * dx_norm;
                     else
                         norm_norm = out_bar_ptr[j] + w_norm2_ptr[k] * dx_norm;
@@ -1570,13 +1605,15 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
                     norm_norm_col = last_y_col_ptr[k] + delta_x_col * w_norm2_ptr[k];
                     min_norm_norm = std::min(min_norm_norm, norm_norm_col);
 
-
-                    if (min_norm_norm + y_kij <= 0){
+                    if (min_norm_norm + y_kij <= 0)
+                    {
                         last_y_col_ptr[k] = min_norm_norm;
                         //                        last_y_row_ptr[k] = min_norm_norm;
                         out_bar_ptr[j] = min_norm_norm;
                         outptr[j] = 0;
-                    }else{
+                    }
+                    else
+                    {
                         for (int q = 0; q < inch; q++)
                         {
                             const Mat& m = bottom_blob.channel(q);
@@ -1592,11 +1629,15 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
                             kptr += maxk;
                         }
 
-                        if (bias_term){
+                        if (bias_term)
+                        {
                             out_bar_ptr[j] = y_kij - bias_data[k];
-                            last_y_col_ptr[k] = y_kij - bias_data[k];;
+                            last_y_col_ptr[k] = y_kij - bias_data[k];
+                            ;
                             //                            last_y_row_ptr[k] = y_kij - bias_data[k];;
-                        }else{
+                        }
+                        else
+                        {
                             out_bar_ptr[j] = y_kij;
                             last_y_col_ptr[k] = y_kij;
                             //                            last_y_row_ptr[k] = y_kij;
@@ -1621,26 +1662,30 @@ static int temporal_spatial_convolution_lower_bound(const Mat& bottom_blob, Mat&
     return 0;
 }
 
-
-float find_max(const float* arr, int size){
-    float* bs = (float*)malloc(size *sizeof(float));
-    for (int i=0; i< size; i++){
+float find_max(const float* arr, int size)
+{
+    float* bs = (float*)malloc(size * sizeof(float));
+    for (int i = 0; i < size; i++)
+    {
         bs[i] = arr[i];
     }
 
-    for(int i = 0;i<=size-1;i++){
-        for(int j = size-1;j>i;j--){
-            if(bs[j]<bs[j-1])
+    for (int i = 0; i <= size - 1; i++)
+    {
+        for (int j = size - 1; j > i; j--)
+        {
+            if (bs[j] < bs[j - 1])
             {
-                int cup = bs[j-1];
-                bs[j-1] = bs[j];
+                int cup = bs[j - 1];
+                bs[j - 1] = bs[j];
                 bs[j] = cup;
             }
         }
     }
 
-    float max_2=0;
-    for (int i=size-3; i<size; i++){
+    float max_2 = 0;
+    for (int i = size - 3; i < size; i++)
+    {
         max_2 += arr[i] * arr[i];
     }
 
@@ -1651,8 +1696,8 @@ float find_max(const float* arr, int size){
 
 // 比较左边和上面
 static int spatial_convolution_lower_bound(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_data, const Mat& bias_data, int kernel_w, int kernel_h,
-                               int stride_w, int stride_h, int dilation_w, int dilation_h, int activation_type, const Mat& activation_params, const Option& opt,
-                               Mat& w_norm2, Mat& last_y_col, Mat& last_y_row, Mat& w_norm2_lower)
+        int stride_w, int stride_h, int dilation_w, int dilation_h, int activation_type, const Mat& activation_params, const Option& opt,
+        Mat& w_norm2, Mat& last_y_col, Mat& last_y_row, Mat& w_norm2_lower)
 {
     const int w = bottom_blob.w;
     const int inch = bottom_blob.c;
@@ -1686,38 +1731,40 @@ static int spatial_convolution_lower_bound(const Mat& bottom_blob, Mat& top_blob
 
     //    Mat w_norm2 = Mat();
     //    Mat last_y_col = Mat();
-    if (w_norm2.total() <= 0){
+    if (w_norm2.total() <= 0)
+    {
         w_norm2.create(outch);
         w_norm2_lower.create(outch);
         last_y_col.create(outch);
-        last_y_row.create(outch, outw);         // outw是h
-        float* w_norm2_data_lower_ptr = (float*) w_norm2_lower.data;    // 去掉第0个元素
+        last_y_row.create(outch, outw);                             // outw是h
+        float* w_norm2_data_lower_ptr = (float*)w_norm2_lower.data; // 去掉第0个元素
         /**
          * calculate w_norm2
          */
-        float* w_norm2_data = (float*) w_norm2.data;
-        for (int k=0; k<outch; k++){
+        float* w_norm2_data = (float*)w_norm2.data;
+        for (int k = 0; k < outch; k++)
+        {
             const float* kptr = (const float*)weight_data.data + maxk * inch * k;
             w_norm2_data_lower_ptr[k] = kptr[0];
             w_norm2_data[k] = 0.0;
-            for (int q = 0; q < inch; q++){
-                for (int w_i = 0; w_i < maxk; w_i++){
+            for (int q = 0; q < inch; q++)
+            {
+                for (int w_i = 0; w_i < maxk; w_i++)
+                {
                     w_norm2_data[k] += kptr[w_i] * kptr[w_i];
                 }
                 kptr += maxk;
             }
 
-//            float abs_max_2 = find_max((const float*)weight_data.data + maxk * inch * k, maxk*inch);
+            //            float abs_max_2 = find_max((const float*)weight_data.data + maxk * inch * k, maxk*inch);
 
-            w_norm2_data_lower_ptr[k] = sqrt(w_norm2_data[k] -
-                                             w_norm2_data_lower_ptr[k] * w_norm2_data_lower_ptr[k]);
-//            w_norm2_data_lower_ptr[k] = sqrt(w_norm2_data[k] - abs_max_2);
+            w_norm2_data_lower_ptr[k] = sqrt(w_norm2_data[k] - w_norm2_data_lower_ptr[k] * w_norm2_data_lower_ptr[k]);
+            //            w_norm2_data_lower_ptr[k] = sqrt(w_norm2_data[k] - abs_max_2);
             w_norm2_data[k] = sqrt(w_norm2_data[k]);
-//            fprintf(stderr, "%f\n", w_norm2_data_lower_ptr[k]/ w_norm2_data[k]);
+            //            fprintf(stderr, "%f\n", w_norm2_data_lower_ptr[k]/ w_norm2_data[k]);
         }
-//        fprintf(stderr, "\n");
+        //        fprintf(stderr, "\n");
     }
-
 
     float reduce = 0;
     float total = 0;
@@ -1727,11 +1774,11 @@ static int spatial_convolution_lower_bound(const Mat& bottom_blob, Mat& top_blob
     float norm_norm_col;
     float delta_x_col;
 
-    float norm_norm_row;    // i的norm norm
+    float norm_norm_row; // i的norm norm
     float delta_x_row;
 
     float* last_y_row_ptr = nullptr;
-    float* last_y_col_ptr = (float*) last_y_col.data;
+    float* last_y_col_ptr = (float*)last_y_col.data;
 
     //    #pragma omp parallel for num_threads(opt.num_threads)
     for (int i = 0; i < outh; i++)
@@ -1742,10 +1789,11 @@ static int spatial_convolution_lower_bound(const Mat& bottom_blob, Mat& top_blob
             float record_delta_xij_0 = 0; //    record i delta
             delta_x_col = 0.0;
             delta_x_row = 0.0;
-            if (j!=0){
+            if (j != 0)
+            {
                 /** 上一列的基准
-             * calculate ||x(i, j) - x(i, j-1)||
-             */
+                * calculate ||x(i, j) - x(i, j-1)||
+                */
                 for (int q = 0; q < inch; q++)
                 {
                     const Mat m = bottom_blob.channel(q);
@@ -1762,16 +1810,17 @@ static int spatial_convolution_lower_bound(const Mat& bottom_blob, Mat& top_blob
                 delta_x_col = sqrt(delta_x_col);
             }
 
-            if (i!=0){
+            if (i != 0)
+            {
                 /** 上一行的基准
-             * calculate ||x(i, j) - x(i-1, j)||
-             */
+                * calculate ||x(i, j) - x(i-1, j)||
+                */
                 for (int q = 0; q < 1; q++)
                 {
                     const Mat m = bottom_blob.channel(q);
                     const float* sptr = m.row(i * stride_h) + j * stride_w;
 
-                    const float* prev_sptr = m.row((i-1) * stride_h) + j * stride_w;
+                    const float* prev_sptr = m.row((i - 1) * stride_h) + j * stride_w;
                     for (int w_i = 0; w_i < 1; w_i++) // 29.23
                     {
                         float delta = sptr[space_ofs[w_i]] - prev_sptr[space_ofs[w_i]];
@@ -1790,7 +1839,7 @@ static int spatial_convolution_lower_bound(const Mat& bottom_blob, Mat& top_blob
                     const Mat m = bottom_blob.channel(q);
                     const float* sptr = m.row(i * stride_h) + j * stride_w;
 
-                    const float* prev_sptr = m.row((i-1) * stride_h) + j * stride_w;
+                    const float* prev_sptr = m.row((i - 1) * stride_h) + j * stride_w;
 
                     for (int w_i = 0; w_i < maxk; w_i++) // 29.23
                     {
@@ -1815,29 +1864,34 @@ static int spatial_convolution_lower_bound(const Mat& bottom_blob, Mat& top_blob
 
                 total += 1;
 
-                if (j!=0){
+                if (j != 0)
+                {
                     norm_norm_col = last_y_col_ptr[k] + delta_x_col * w_norm2[k];
                     min_norm_norm = norm_norm_col;
                 }
 
-                if (i!=0){
+                if (i != 0)
+                {
                     if (record_delta_xij_0 * kptr[0] <= 0)
                         norm_norm_row = last_y_row_ptr[k] + delta_x_row * w_norm2_lower[k];
                     else
                         norm_norm_row = last_y_row_ptr[k] + delta_x_row * w_norm2[k];
 
-                    if(j!=0)
+                    if (j != 0)
                         min_norm_norm = std::min(norm_norm_row, min_norm_norm);
                     else
                         min_norm_norm = norm_norm_row;
                 }
 
-                if ((i!=0||j!=0) && min_norm_norm + y_kij <= 0){
+                if ((i != 0 || j != 0) && min_norm_norm + y_kij <= 0)
+                {
                     last_y_col_ptr[k] = min_norm_norm;
                     last_y_row_ptr[k] = min_norm_norm;
                     outptr[j] = 0;
                     reduce += 1;
-                }else{
+                }
+                else
+                {
                     last_y_col_ptr[k] = -y_kij;
                     last_y_row_ptr[k] = -y_kij;
                     for (int q = 0; q < inch; q++)
@@ -1850,7 +1904,6 @@ static int spatial_convolution_lower_bound(const Mat& bottom_blob, Mat& top_blob
                             float val = sptr[space_ofs[w_i]]; // 20.72
                             float wt = kptr[w_i];
                             y_kij += val * wt; // 41.45
-
                         }
                         kptr += maxk;
                     }
@@ -1867,7 +1920,6 @@ static int spatial_convolution_lower_bound(const Mat& bottom_blob, Mat& top_blob
     //    fprintf(stderr, "%f/%f=%.2f\n", reduce, total, reduce/total);
     return 0;
 }
-
 
 // 比较左边和上面
 static int spatial_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_data, const Mat& bias_data, int kernel_w, int kernel_h,
@@ -1905,21 +1957,25 @@ static int spatial_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat&
         }
     }
 
-//    Mat w_norm2 = Mat();
-//    Mat last_y_col = Mat();
-    if (w_norm2.total() <= 0){
+    //    Mat w_norm2 = Mat();
+    //    Mat last_y_col = Mat();
+    if (w_norm2.total() <= 0)
+    {
         w_norm2.create(outch);
         last_y_col.create(outch);
-        last_y_row.create(outch, outw);         // outw是h
+        last_y_row.create(outch, outw); // outw是h
         /**
          * calculate w_norm2
          */
-        float* w_norm2_data = (float*) w_norm2.data;
-        for (int k=0; k<outch; k++){
+        float* w_norm2_data = (float*)w_norm2.data;
+        for (int k = 0; k < outch; k++)
+        {
             const float* kptr = (const float*)weight_data.data + maxk * inch * k;
             w_norm2_data[k] = 0.0;
-            for (int q = 0; q < inch; q++){
-                for (int w_i = 0; w_i < maxk; w_i++){
+            for (int q = 0; q < inch; q++)
+            {
+                for (int w_i = 0; w_i < maxk; w_i++)
+                {
                     w_norm2_data[k] += kptr[w_i] * kptr[w_i];
                 }
                 kptr += maxk;
@@ -1927,7 +1983,6 @@ static int spatial_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat&
             w_norm2_data[k] = sqrt(w_norm2_data[k]);
         }
     }
-
 
     float reduce = 0;
     float total = 0;
@@ -1937,13 +1992,13 @@ static int spatial_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat&
     float norm_norm_col;
     float delta_x_col;
 
-    float norm_norm_row;    // i的norm norm
+    float norm_norm_row; // i的norm norm
     float delta_x_row;
 
     float* last_y_row_ptr = nullptr;
-    float* last_y_col_ptr = (float*) last_y_col.data;
+    float* last_y_col_ptr = (float*)last_y_col.data;
 
-        //    #pragma omp parallel for num_threads(opt.num_threads)
+    //    #pragma omp parallel for num_threads(opt.num_threads)
     for (int i = 0; i < outh; i++)
     {
         last_y_row_ptr = (float*)last_y_row.data;
@@ -1951,10 +2006,11 @@ static int spatial_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat&
         {
             delta_x_col = 0.0;
             delta_x_row = 0.0;
-            if (j!=0){
-            /** 上一列的基准
-             * calculate ||x(i, j) - x(i, j-1)||
-             */
+            if (j != 0)
+            {
+                /** 上一列的基准
+                * calculate ||x(i, j) - x(i, j-1)||
+                */
                 for (int q = 0; q < inch; q++)
                 {
                     const Mat m = bottom_blob.channel(q);
@@ -1971,16 +2027,17 @@ static int spatial_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat&
                 delta_x_col = sqrt(delta_x_col);
             }
 
-            if (i!=0){
-            /** 上一行的基准
-             * calculate ||x(i, j) - x(i-1, j)||
-             */
-            for (int q = 0; q < inch; q++)
+            if (i != 0)
+            {
+                /** 上一行的基准
+                * calculate ||x(i, j) - x(i-1, j)||
+                */
+                for (int q = 0; q < inch; q++)
                 {
                     const Mat m = bottom_blob.channel(q);
                     const float* sptr = m.row(i * stride_h) + j * stride_w;
 
-                    const float* prev_sptr = m.row((i-1) * stride_h) + j * stride_w;
+                    const float* prev_sptr = m.row((i - 1) * stride_h) + j * stride_w;
 
                     for (int w_i = 0; w_i < maxk; w_i++) // 29.23
                     {
@@ -2005,25 +2062,30 @@ static int spatial_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat&
 
                 total += 1;
 
-                if (j!=0){
+                if (j != 0)
+                {
                     norm_norm_col = last_y_col_ptr[k] + delta_x_col * w_norm2[k];
                     min_norm_norm = norm_norm_col;
                 }
 
-                if (i!=0){
+                if (i != 0)
+                {
                     norm_norm_row = last_y_row_ptr[k] + delta_x_row * w_norm2[k];
-                    if(j!=0)
+                    if (j != 0)
                         min_norm_norm = std::min(norm_norm_row, min_norm_norm);
                     else
                         min_norm_norm = norm_norm_row;
                 }
 
-                if ((i!=0||j!=0) && min_norm_norm + y_kij <= 0){
+                if ((i != 0 || j != 0) && min_norm_norm + y_kij <= 0)
+                {
                     last_y_col_ptr[k] = min_norm_norm;
                     last_y_row_ptr[k] = min_norm_norm;
                     outptr[j] = 0;
                     reduce += inch * maxk;
-                }else{
+                }
+                else
+                {
                     last_y_col_ptr[k] = -y_kij;
                     last_y_row_ptr[k] = -y_kij;
                     for (int q = 0; q < inch; q++)
@@ -2036,7 +2098,6 @@ static int spatial_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat&
                             float val = sptr[space_ofs[w_i]]; // 20.72
                             float wt = kptr[w_i];
                             y_kij += val * wt; // 41.45
-
                         }
                         kptr += maxk;
                     }
@@ -2047,17 +2108,16 @@ static int spatial_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat&
                 }
             }
             last_y_row_ptr += outch;
-//            last_y_row_ptr = (float*)((unsigned char*)last_y_row_ptr + (size_t)w * last_y_row.elemsize);
+            //            last_y_row_ptr = (float*)((unsigned char*)last_y_row_ptr + (size_t)w * last_y_row.elemsize);
         }
     }
     if (last_sparsity < 0)
         last_sparsity = reduce;
     else
-        last_sparsity = ((call_time - 1) * last_sparsity + reduce)/call_time;
+        last_sparsity = ((call_time - 1) * last_sparsity + reduce) / call_time;
     fprintf(stderr, "%f ", last_sparsity);
     return 0;
 }
-
 
 // 保留原来的convolution
 static int raw_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& weight_data, const Mat& bias_data, int kernel_w, int kernel_h, int stride_w, int stride_h, int dilation_w, int dilation_h, int activation_type, const Mat& activation_params, const Option& opt)
@@ -2112,7 +2172,7 @@ static int raw_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& wei
 
                 const float* kptr = (const float*)weight_data + maxk * inch * k;
 
-                flops += inch*maxk;
+                flops += inch * maxk;
                 for (int q = 0; q < inch; q++)
                 {
                     const Mat m = bottom_blob.channel(q);
@@ -2128,7 +2188,8 @@ static int raw_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& wei
                     kptr += maxk;
                 }
 
-                if (y_kij <= 0){
+                if (y_kij <= 0)
+                {
                     sparsity += 1;
                 }
                 total += 1;
@@ -2137,7 +2198,7 @@ static int raw_convolution(const Mat& bottom_blob, Mat& top_blob, const Mat& wei
             }
         }
     }
-//    fprintf(stderr, "%f %f\n", flops, sparsity/total);
+    //    fprintf(stderr, "%f %f\n", flops, sparsity/total);
 
     return 0;
 }
@@ -2219,39 +2280,42 @@ int Convolution::forward(const Mat& bottom_blob, Mat& top_blob, const Option& op
         return -100;
 
     int ret;
-    if (opt.use_reserved_0){
-//    if (false){
-//        ret = our_convolution(bottom_blob_bordered, top_blob,
-//                              weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
-//                              last_x, theta_thres, w_unit, w_norm, exact_compute);
+    if (opt.use_reserved_0)
+    {
+        //    if (false){
+        //        ret = our_convolution(bottom_blob_bordered, top_blob,
+        //                              weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
+        //                              last_x, theta_thres, w_unit, w_norm, exact_compute);
 
-//        ret = mlsys_convolution(bottom_blob_bordered, top_blob,
-//                                weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
-//                            record1, record2, record3);
+        //        ret = mlsys_convolution(bottom_blob_bordered, top_blob,
+        //                                weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
+        //                            record1, record2, record3);
 
-//    ret = select_temporal_spatial_convolution(bottom_blob_bordered, top_blob,
-//                                    weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
-//                                    record1, record2, record3, record4, record5, last_time_sparsity);
+        //    ret = select_temporal_spatial_convolution(bottom_blob_bordered, top_blob,
+        //                                    weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
+        //                                    record1, record2, record3, record4, record5, last_time_sparsity);
 
         ret = spatial_convolution(bottom_blob_bordered, top_blob,
                                   weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
-                          record1, record2, record3, last_time_sparsity, call_count);
+                                  record1, record2, record3, last_time_sparsity, call_count);
 
-//        ret = spatial_convolution_lower_bound(bottom_blob_bordered, top_blob,
-//                                                weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
-//                                            record1, record2, record3, record4);
+        //        ret = spatial_convolution_lower_bound(bottom_blob_bordered, top_blob,
+        //                                                weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
+        //                                            record1, record2, record3, record4);
 
-//        ret = temporal_spatial_convolution(bottom_blob_bordered, top_blob,
-//                                  weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
-//                                  record1, record2, record3, record4, record5);
+        //        ret = temporal_spatial_convolution(bottom_blob_bordered, top_blob,
+        //                                  weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
+        //                                  record1, record2, record3, record4, record5);
 
-//        ret = temporal_spatial_convolution_lower_bound(bottom_blob_bordered, top_blob,
-//                                  weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
-//                                  record1, record2, record3, record4, record5, record6);
-    }else{
+        //        ret = temporal_spatial_convolution_lower_bound(bottom_blob_bordered, top_blob,
+        //                                  weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt,
+        //                                  record1, record2, record3, record4, record5, record6);
+    }
+    else
+    {
         ret = raw_convolution(bottom_blob_bordered, top_blob,
                               weight_data, bias_data, kernel_w, kernel_h, stride_w, stride_h, dilation_w, dilation_h, activation_type, activation_params, opt);
-//        fprintf(stderr, "raw conv\n");
+        //        fprintf(stderr, "raw conv\n");
     }
     if (ret != 0)
         return ret;
@@ -2426,8 +2490,8 @@ int Convolution::forward_int8(const Mat& bottom_blob, Mat& top_blob, const Optio
     if (top_blob.empty())
         return -100;
 
-// num_output
-#pragma omp parallel for num_threads(opt.num_threads)
+    // num_output
+    #pragma omp parallel for num_threads(opt.num_threads)
     for (int p = 0; p < num_output; p++)
     {
         signed char* outptr = top_blob.channel(p);

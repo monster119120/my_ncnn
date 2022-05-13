@@ -99,7 +99,8 @@ static int detect_run(std::vector<cv::Mat> bgrs)
     double infer_time = 0.0;
     double start, end;
 
-    for (int c =0; c <bgrs.size()-1; c++){
+    for (int c = 0; c < bgrs.size() - 1; c++)
+    {
         //        double infer_time = 0;
 
         // scale to target detect size
@@ -107,12 +108,12 @@ static int detect_run(std::vector<cv::Mat> bgrs)
 
         ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, bgr.cols, bgr.rows, target_size, target_size);
 
-//        const float mean_vals[3] = {127.5f, 127.5f, 127.5f};
-//        const float norm_vals[3] = {1.0 / 127.5, 1.0 / 127.5, 1.0 / 127.5};
-//        in.substract_mean_normalize(mean_vals, norm_vals);
-//        const float mean_vals[3] = {123.68f, 116.78f, 103.94f};
+        //        const float mean_vals[3] = {127.5f, 127.5f, 127.5f};
+        //        const float norm_vals[3] = {1.0 / 127.5, 1.0 / 127.5, 1.0 / 127.5};
+        //        in.substract_mean_normalize(mean_vals, norm_vals);
+        //        const float mean_vals[3] = {123.68f, 116.78f, 103.94f};
         //        const float mean_vals[3] = {102.9801f, 115.9465f, 122.7717f};
-//        in.substract_mean_normalize(mean_vals, 0);
+        //        in.substract_mean_normalize(mean_vals, 0);
 
         ncnn::Extractor ex = mobilenet.create_extractor();
 
@@ -125,10 +126,10 @@ static int detect_run(std::vector<cv::Mat> bgrs)
         end = ncnn::get_current_time();
         infer_time += end - start;
 
-        fprintf(stderr, " %.2f\n", infer_time / (c+1));
+        fprintf(stderr, " %.2f\n", infer_time / (c + 1));
     }
 
-    fprintf(stderr, "%.2f\n", infer_time / (bgrs.size()-1));
+    fprintf(stderr, "%.2f\n", infer_time / (bgrs.size() - 1));
     //    sleep for 3s
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
@@ -202,10 +203,8 @@ int main2(int argc, char** argv)
 
     draw_objects(m, objects);
 
-
     return 0;
 }
-
 
 int main(int argc, char** argv)
 {
@@ -213,8 +212,8 @@ int main(int argc, char** argv)
     //    temp.c_str()
 
     std::vector<std::string> video_dataset = {
-                "../../images/all_coco_1000_images.mp4",
-//        "../../images/all_biaoshi.mp4",
+        "../../images/all_coco_1000_images.mp4",
+        //        "../../images/all_biaoshi.mp4",
         //        "../../images/all_imagenet_mini.mp4",
         //        "../../images/cts/BreastMRI_ct.mp4",
         //        "/Users/kr/Downloads/YUP++/camera_moving/FallingTrees/FallingTrees_moving_cam_10.mp4",
@@ -259,8 +258,8 @@ int main(int argc, char** argv)
         //        "/Users/kr/Downloads/YUP++/camera_stationary/RushingRiver/RushingRiver_static_cam_6.mp4"
     };
 
-
-    for (const auto& video_name: video_dataset){
+    for (const auto& video_name : video_dataset)
+    {
         fprintf(stderr, "%s \n", video_name.c_str());
         std::vector<cv::Mat> ms;
         cv::VideoCapture capture;
@@ -274,11 +273,10 @@ int main(int argc, char** argv)
         //    capture.open("/Users/kr/Downloads/YUP++/camera_moving/Fireworks/Fireworks_moving_cam_27.mp4");
         //    capture.open("/Users/kr/Downloads/YUP++/camera_stationary/Elevator/Elevator_static_cam_1.mp4");
         capture.open(video_name);
-        if(!capture.isOpened())
+        if (!capture.isOpened())
         {
             printf("can not open ...\n");
             return -1;
-
         }
 
         int c = 0;
@@ -296,8 +294,6 @@ int main(int argc, char** argv)
         detect_run(ms);
         capture.release();
         ms.clear();
-
-
     }
     return 0;
 }

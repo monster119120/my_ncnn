@@ -113,7 +113,6 @@ int Layer::forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) con
     return forward_inplace(top_blob, opt);
 }
 
-
 int Layer::forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt)
 {
     if (!support_inplace)

@@ -96,7 +96,6 @@ static inline void prng_srand(uint64_t seed, struct prng_rand_t* state)
 
 #endif
 
-
 // Tencent is pleased to support the open source community by making ncnn available.
 //
 // Copyright (C) 2019 THL A29 Limited, a Tencent company. All rights reserved.

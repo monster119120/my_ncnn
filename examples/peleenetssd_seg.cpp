@@ -51,15 +51,16 @@ static int detect_peleenet(const cv::Mat& bgr, std::vector<Object>& objects, ncn
     int img_w = bgr.cols;
     int img_h = bgr.rows;
 
-//    ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, bgr.cols, bgr.rows, target_size, target_size);
-//
-//    const float mean_vals[3] = {103.9f, 116.7f, 123.6f};
-//    const float norm_vals[3] = {0.017f, 0.017f, 0.017f};
-//    in.substract_mean_normalize(mean_vals, norm_vals);
-//    ncnn::Mat out;
-//    ncnn::Mat seg_out;
+    //    ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, bgr.cols, bgr.rows, target_size, target_size);
+    //
+    //    const float mean_vals[3] = {103.9f, 116.7f, 123.6f};
+    //    const float norm_vals[3] = {0.017f, 0.017f, 0.017f};
+    //    in.substract_mean_normalize(mean_vals, norm_vals);
+    //    ncnn::Mat out;
+    //    ncnn::Mat seg_out;
 
-    for (int i=0; i<1; i++){
+    for (int i = 0; i < 1; i++)
+    {
         ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, bgr.cols, bgr.rows, target_size, target_size);
 
         const float mean_vals[3] = {103.9f, 116.7f, 123.6f};
@@ -70,11 +71,12 @@ static int detect_peleenet(const cv::Mat& bgr, std::vector<Object>& objects, ncn
         ncnn::Extractor ex = peleenet.create_extractor();
         ex.input("data", in);
         ex.extract("detection_out", out);
-//        ex.extract("sigmoid", seg_out);
+        //        ex.extract("sigmoid", seg_out);
         resize_bilinear(seg_out, resized, img_w, img_h);
-        resize_bicubic(seg_out,resized,img_w,img_h); // sharpness
+        resize_bicubic(seg_out, resized, img_w, img_h); // sharpness
     }
-    for (int i=0; i<3; i++){
+    for (int i = 0; i < 3; i++)
+    {
         ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, bgr.cols, bgr.rows, target_size, target_size);
 
         const float mean_vals[3] = {103.9f, 116.7f, 123.6f};
@@ -87,13 +89,13 @@ static int detect_peleenet(const cv::Mat& bgr, std::vector<Object>& objects, ncn
 
         double start = ncnn::get_current_time();
         ex.extract("detection_out", out);
-//        ex.extract("sigmoid", seg_out);
+        //        ex.extract("sigmoid", seg_out);
 
         double end = ncnn::get_current_time();
         fprintf(stderr, "End-to-end time: %f\n", end - start);
 
         resize_bilinear(seg_out, resized, img_w, img_h);
-        resize_bicubic(seg_out,resized,img_w,img_h); // sharpness
+        resize_bicubic(seg_out, resized, img_w, img_h); // sharpness
     }
 
     return 0;
@@ -113,26 +115,27 @@ static int detect_peleenet(const std::vector<cv::Mat>& bgrs, std::vector<Object>
 
     const int target_size = 304;
 
-//    for(int i=0; i<bgrs.size() - 1; i++){
-//        int count = 0;
-//        float* cur = (float*)bgrs[i].data;
-//        float* next = (float*)bgrs[i+1].data;
-//
-//        for (int e=0; e<bgrs[i].total(); e++){
-//            if (cur[e] == next[e])
-//                count += 1;
-//        }
-//
-//        fprintf(stderr, "%d == %d\n", count, bgrs[i].total());
-//    }
-//
-//    exit(1);
-//    int flip = 3;
-    for(int i=0; i<1; i++){
-//        int img_w = bgr.cols;
-//        int img_h = bgr.rows;
-        const cv::Mat & bgr = bgrs[i];
-//        flip = 7 - flip;
+    //    for(int i=0; i<bgrs.size() - 1; i++){
+    //        int count = 0;
+    //        float* cur = (float*)bgrs[i].data;
+    //        float* next = (float*)bgrs[i+1].data;
+    //
+    //        for (int e=0; e<bgrs[i].total(); e++){
+    //            if (cur[e] == next[e])
+    //                count += 1;
+    //        }
+    //
+    //        fprintf(stderr, "%d == %d\n", count, bgrs[i].total());
+    //    }
+    //
+    //    exit(1);
+    //    int flip = 3;
+    for (int i = 0; i < 1; i++)
+    {
+        //        int img_w = bgr.cols;
+        //        int img_h = bgr.rows;
+        const cv::Mat& bgr = bgrs[i];
+        //        flip = 7 - flip;
         ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, bgr.cols, bgr.rows, target_size, target_size);
 
         const float mean_vals[3] = {103.9f, 116.7f, 123.6f};
@@ -152,7 +155,6 @@ static int detect_peleenet(const std::vector<cv::Mat>& bgrs, std::vector<Object>
     }
     return 0;
 }
-
 
 static void draw_objects(const cv::Mat& bgr, const std::vector<Object>& objects, ncnn::Mat map)
 {
@@ -241,47 +243,46 @@ static void draw_objects(const cv::Mat& bgr, const std::vector<Object>& objects,
 
 int main(int argc, char** argv)
 {
-//    if (argc != 2)
-//    {
-//        fprintf(stderr, "Usage: %s [imagepath]\n", argv[0]);
-//        return -1;
-//    }
-//
-//    const char* imagepath = argv[1];
-//
-//    cv::Mat m = cv::imread(imagepath, 1);
-//    if (m.empty())
-//    {
-//        fprintf(stderr, "cv::imread %s failed\n", imagepath);
-//        return -1;
-//    }
+    //    if (argc != 2)
+    //    {
+    //        fprintf(stderr, "Usage: %s [imagepath]\n", argv[0]);
+    //        return -1;
+    //    }
+    //
+    //    const char* imagepath = argv[1];
+    //
+    //    cv::Mat m = cv::imread(imagepath, 1);
+    //    if (m.empty())
+    //    {
+    //        fprintf(stderr, "cv::imread %s failed\n", imagepath);
+    //        return -1;
+    //    }
     std::vector<cv::Mat> ms;
     cv::VideoCapture capture;
     cv::Mat frame;
-////    cv::Mat gray;
-    frame= capture.open("../../images/monitor1.mp4");
-    if(!capture.isOpened())
+    ////    cv::Mat gray;
+    frame = capture.open("../../images/monitor1.mp4");
+    if (!capture.isOpened())
     {
         printf("can not open ...\n");
         return -1;
     }
-//
-//    cv::Mat gray;
-//
-    for (int c=0; c<10; c++)
+    //
+    //    cv::Mat gray;
+    //
+    for (int c = 0; c < 10; c++)
     {
         ms.emplace_back(cv::Mat());
         capture.read(ms[c]);
-//        cvtColor(frame, ms[c], cv::COLOR_BGR2GRAY);
+        //        cvtColor(frame, ms[c], cv::COLOR_BGR2GRAY);
     }
-//
-//    capture.release();
+    //
+    //    capture.release();
 
     std::vector<Object> objects;
     ncnn::Mat seg_out;
 
     detect_peleenet(ms, objects, seg_out);
-
 
     return 0;
 }

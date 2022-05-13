@@ -55,24 +55,24 @@ static int detect_shufflenetv2(const cv::Mat& bgr, std::vector<float>& cls_score
     // manually call softmax on the fc output
     // convert result into probability
     // skip if your model already has softmax operation
-//    {
-//        ncnn::Layer* softmax = ncnn::create_layer("Softmax");
-//
-//        ncnn::ParamDict pd;
-//        softmax->load_param(pd);
-//
-//        softmax->forward_inplace(out, shufflenetv2.opt);
-//
-//        delete softmax;
-//    }
-//
-//    out = out.reshape(out.w * out.h * out.c);
-//
-//    cls_scores.resize(out.w);
-//    for (int j = 0; j < out.w; j++)
-//    {
-//        cls_scores[j] = out[j];
-//    }
+    //    {
+    //        ncnn::Layer* softmax = ncnn::create_layer("Softmax");
+    //
+    //        ncnn::ParamDict pd;
+    //        softmax->load_param(pd);
+    //
+    //        softmax->forward_inplace(out, shufflenetv2.opt);
+    //
+    //        delete softmax;
+    //    }
+    //
+    //    out = out.reshape(out.w * out.h * out.c);
+    //
+    //    cls_scores.resize(out.w);
+    //    for (int j = 0; j < out.w; j++)
+    //    {
+    //        cls_scores[j] = out[j];
+    //    }
 
     return 0;
 }
@@ -88,7 +88,8 @@ static int detect_shufflenetv2(std::vector<cv::Mat> bgrs, std::vector<float>& cl
     shufflenetv2.load_param("../../examples/shufflenet_v2_x0.5.param");
     shufflenetv2.load_model("../../examples/shufflenet_v2_x0.5.bin");
 
-    for (auto bgr: bgrs){
+    for (auto bgr : bgrs)
+    {
         ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, bgr.cols, bgr.rows, 224, 224);
 
         const float norm_vals[3] = {1 / 255.f, 1 / 255.f, 1 / 255.f};
@@ -130,8 +131,6 @@ static int detect_shufflenetv2(std::vector<cv::Mat> bgrs, std::vector<float>& cl
 
     return 0;
 }
-
-
 
 static int print_topk(const std::vector<float>& cls_scores, int topk)
 {
@@ -188,16 +187,15 @@ int main(int argc, char** argv)
     std::vector<cv::Mat> ms;
     cv::VideoCapture capture;
     cv::Mat frame;
-//        capture.open("../../images/all_number.mp4");
-        capture.open("../../images/all_black_video.mp4");
-//        capture.open("../../images/all_imagenet_mini.mp4");
-//    capture.open("../../images/cts/Head_ct.mp4");
+    //        capture.open("../../images/all_number.mp4");
+    capture.open("../../images/all_black_video.mp4");
+    //        capture.open("../../images/all_imagenet_mini.mp4");
+    //    capture.open("../../images/cts/Head_ct.mp4");
     //    capture.open("/Users/kr/Downloads/YUP++/camera_moving/WindmillFarm/WindmillFarm_moving_cam_10.mp4");
-    if(!capture.isOpened())
+    if (!capture.isOpened())
     {
         printf("can not open ...\n");
         return -1;
-
     }
 
     int c = 0;
@@ -217,7 +215,7 @@ int main(int argc, char** argv)
     std::vector<float> cls_scores;
     detect_shufflenetv2(ms, cls_scores);
 
-//    print_topk(cls_scores, 3);
+    //    print_topk(cls_scores, 3);
 
     return 0;
 }
