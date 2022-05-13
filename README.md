@@ -2,7 +2,7 @@
 
 Our modified ncnn framework can be compiled with original ncnn tutorial.
 
-Please reference READEME_ncnn.md for more instructions of how to build the whole project.
+Please reference READEME_ncnn.txt for more instructions of how to build the whole project.
 
 Modified code mostly in examples/ directory. Please download pre-trained model from ncnn official repo.
 
