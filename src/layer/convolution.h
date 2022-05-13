@@ -72,6 +72,21 @@ public:
     Mat weight_data;
     Mat bias_data;
 
+    // record
+    Mat record1;
+    Mat record2;
+    Mat record3;
+    Mat record4;
+    Mat record5;
+    Mat record6;
+    Mat record7;
+
+    bool exact_compute;
+    float call_count;
+    float last_time_sparsity;
+
+    std::vector<Mat> last_x_our;
+
 #if NCNN_INT8
     Mat weight_data_int8_scales;
     Mat bottom_blob_int8_scales;

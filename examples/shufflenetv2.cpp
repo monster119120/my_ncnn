@@ -23,6 +23,7 @@
 #endif
 #include <stdio.h>
 #include <vector>
+#include <benchmark.h>
 
 static int detect_shufflenetv2(const cv::Mat& bgr, std::vector<float>& cls_scores)
 {
@@ -32,8 +33,8 @@ static int detect_shufflenetv2(const cv::Mat& bgr, std::vector<float>& cls_score
 
     // https://github.com/miaow1988/ShuffleNet_V2_pytorch_caffe
     // models can be downloaded from https://github.com/miaow1988/ShuffleNet_V2_pytorch_caffe/releases
-    shufflenetv2.load_param("shufflenet_v2_x0.5.param");
-    shufflenetv2.load_model("shufflenet_v2_x0.5.bin");
+    shufflenetv2.load_param("../../examples/shufflenet_v2_x0.5.param");
+    shufflenetv2.load_model("../../examples/shufflenet_v2_x0.5.bin");
 
     ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, bgr.cols, bgr.rows, 224, 224);
 
@@ -45,32 +46,92 @@ static int detect_shufflenetv2(const cv::Mat& bgr, std::vector<float>& cls_score
     ex.input("data", in);
 
     ncnn::Mat out;
+    double start = ncnn::get_current_time();
     ex.extract("fc", out);
+    double end = ncnn::get_current_time();
+
+    fprintf(stderr, "%f\n", end - start);
 
     // manually call softmax on the fc output
     // convert result into probability
     // skip if your model already has softmax operation
-    {
-        ncnn::Layer* softmax = ncnn::create_layer("Softmax");
-
-        ncnn::ParamDict pd;
-        softmax->load_param(pd);
-
-        softmax->forward_inplace(out, shufflenetv2.opt);
-
-        delete softmax;
-    }
-
-    out = out.reshape(out.w * out.h * out.c);
-
-    cls_scores.resize(out.w);
-    for (int j = 0; j < out.w; j++)
-    {
-        cls_scores[j] = out[j];
-    }
+//    {
+//        ncnn::Layer* softmax = ncnn::create_layer("Softmax");
+//
+//        ncnn::ParamDict pd;
+//        softmax->load_param(pd);
+//
+//        softmax->forward_inplace(out, shufflenetv2.opt);
+//
+//        delete softmax;
+//    }
+//
+//    out = out.reshape(out.w * out.h * out.c);
+//
+//    cls_scores.resize(out.w);
+//    for (int j = 0; j < out.w; j++)
+//    {
+//        cls_scores[j] = out[j];
+//    }
 
     return 0;
 }
+
+static int detect_shufflenetv2(std::vector<cv::Mat> bgrs, std::vector<float>& cls_scores)
+{
+    ncnn::Net shufflenetv2;
+
+    shufflenetv2.opt.use_vulkan_compute = true;
+
+    // https://github.com/miaow1988/ShuffleNet_V2_pytorch_caffe
+    // models can be downloaded from https://github.com/miaow1988/ShuffleNet_V2_pytorch_caffe/releases
+    shufflenetv2.load_param("../../examples/shufflenet_v2_x0.5.param");
+    shufflenetv2.load_model("../../examples/shufflenet_v2_x0.5.bin");
+
+    for (auto bgr: bgrs){
+        ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, bgr.cols, bgr.rows, 224, 224);
+
+        const float norm_vals[3] = {1 / 255.f, 1 / 255.f, 1 / 255.f};
+        in.substract_mean_normalize(0, norm_vals);
+
+        ncnn::Extractor ex = shufflenetv2.create_extractor();
+
+        ex.input("data", in);
+
+        ncnn::Mat out;
+        double start = ncnn::get_current_time();
+        ex.extract("fc", out);
+        double end = ncnn::get_current_time();
+
+        fprintf(stderr, "%f\n", end - start);
+    }
+
+    // manually call softmax on the fc output
+    // convert result into probability
+    // skip if your model already has softmax operation
+    //    {
+    //        ncnn::Layer* softmax = ncnn::create_layer("Softmax");
+    //
+    //        ncnn::ParamDict pd;
+    //        softmax->load_param(pd);
+    //
+    //        softmax->forward_inplace(out, shufflenetv2.opt);
+    //
+    //        delete softmax;
+    //    }
+    //
+    //    out = out.reshape(out.w * out.h * out.c);
+    //
+    //    cls_scores.resize(out.w);
+    //    for (int j = 0; j < out.w; j++)
+    //    {
+    //        cls_scores[j] = out[j];
+    //    }
+
+    return 0;
+}
+
+
 
 static int print_topk(const std::vector<float>& cls_scores, int topk)
 {
@@ -97,7 +158,7 @@ static int print_topk(const std::vector<float>& cls_scores, int topk)
     return 0;
 }
 
-int main(int argc, char** argv)
+int main1(int argc, char** argv)
 {
     if (argc != 2)
     {
@@ -118,6 +179,45 @@ int main(int argc, char** argv)
     detect_shufflenetv2(m, cls_scores);
 
     print_topk(cls_scores, 3);
+
+    return 0;
+}
+
+int main(int argc, char** argv)
+{
+    std::vector<cv::Mat> ms;
+    cv::VideoCapture capture;
+    cv::Mat frame;
+//        capture.open("../../images/all_number.mp4");
+        capture.open("../../images/all_black_video.mp4");
+//        capture.open("../../images/all_imagenet_mini.mp4");
+//    capture.open("../../images/cts/Head_ct.mp4");
+    //    capture.open("/Users/kr/Downloads/YUP++/camera_moving/WindmillFarm/WindmillFarm_moving_cam_10.mp4");
+    if(!capture.isOpened())
+    {
+        printf("can not open ...\n");
+        return -1;
+
+    }
+
+    int c = 0;
+    while (1)
+    {
+        ms.emplace_back(cv::Mat());
+        capture.read(ms[c]);
+        if (ms[c].empty())
+            break;
+
+        //        cv::imshow("w", ms[c]);
+        //        cv::waitKey(0); // waits to display frame
+
+        c += 1;
+    }
+
+    std::vector<float> cls_scores;
+    detect_shufflenetv2(ms, cls_scores);
+
+//    print_topk(cls_scores, 3);
 
     return 0;
 }

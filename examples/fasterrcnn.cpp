@@ -23,6 +23,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #endif
 #include <stdio.h>
+#include <benchmark.h>
+#include <thread>
 
 struct Object
 {
@@ -82,41 +84,7 @@ static void qsort_descent_inplace(std::vector<Object>& objects)
     qsort_descent_inplace(objects, 0, objects.size() - 1);
 }
 
-static void nms_sorted_bboxes(const std::vector<Object>& objects, std::vector<int>& picked, float nms_threshold)
-{
-    picked.clear();
-
-    const int n = objects.size();
-
-    std::vector<float> areas(n);
-    for (int i = 0; i < n; i++)
-    {
-        areas[i] = objects[i].rect.area();
-    }
-
-    for (int i = 0; i < n; i++)
-    {
-        const Object& a = objects[i];
-
-        int keep = 1;
-        for (int j = 0; j < (int)picked.size(); j++)
-        {
-            const Object& b = objects[picked[j]];
-
-            // intersection over union
-            float inter_area = intersection_area(a, b);
-            float union_area = areas[i] + areas[picked[j]] - inter_area;
-            //             float IoU = inter_area / union_area
-            if (inter_area / union_area > nms_threshold)
-                keep = 0;
-        }
-
-        if (keep)
-            picked.push_back(i);
-    }
-}
-
-static int detect_fasterrcnn(const cv::Mat& bgr, std::vector<Object>& objects)
+static int detect_fasterrcnn(const cv::Mat& bgr)
 {
     ncnn::Net fasterrcnn;
 
@@ -127,8 +95,12 @@ static int detect_fasterrcnn(const cv::Mat& bgr, std::vector<Object>& objects)
     // https://dl.dropboxusercontent.com/s/o6ii098bu51d139/faster_rcnn_models.tgz?dl=0
     // ZF_faster_rcnn_final.caffemodel
     // the ncnn model https://github.com/nihui/ncnn-assets/tree/master/models
-    fasterrcnn.load_param("ZF_faster_rcnn_final.param");
-    fasterrcnn.load_model("ZF_faster_rcnn_final.bin");
+    fasterrcnn.load_param("../../examples/ZF_faster_rcnn_final.param");
+    fasterrcnn.load_model("../../examples/ZF_faster_rcnn_final.bin");
+
+    double start = ncnn::get_current_time();
+    double end = ncnn::get_current_time();
+    double infer_time = 0;
 
     // hyper parameters taken from
     // py-faster-rcnn/lib/fast_rcnn/config.py
@@ -175,8 +147,11 @@ static int detect_fasterrcnn(const cv::Mat& bgr, std::vector<Object>& objects)
 
     ncnn::Mat conv5_relu5; // feature
     ncnn::Mat rois;        // all rois
+    start = ncnn::get_current_time();
     ex1.extract("conv5_relu5", conv5_relu5);
     ex1.extract("rois", rois);
+    end = ncnn::get_current_time();
+    infer_time += end - start;
 
     // step2, extract bbox and score for each roi
     std::vector<std::vector<Object> > class_candidates;
@@ -190,149 +165,222 @@ static int detect_fasterrcnn(const cv::Mat& bgr, std::vector<Object>& objects)
 
         ncnn::Mat bbox_pred;
         ncnn::Mat cls_prob;
+        start = ncnn::get_current_time();
         ex2.extract("bbox_pred", bbox_pred);
         ex2.extract("cls_prob", cls_prob);
+        end = ncnn::get_current_time();
+        infer_time += end - start;
 
-        int num_class = cls_prob.w;
-        class_candidates.resize(num_class);
-
-        // find class id with highest score
-        int label = 0;
-        float score = 0.f;
-        for (int i = 0; i < num_class; i++)
-        {
-            float class_score = cls_prob[i];
-            if (class_score > score)
-            {
-                label = i;
-                score = class_score;
-            }
-        }
-
-        // ignore background or low score
-        if (label == 0 || score <= confidence_thresh)
-            continue;
-
-        //         fprintf(stderr, "%d = %f\n", label, score);
-
-        // unscale to image size
-        float x1 = roi[0] / scale;
-        float y1 = roi[1] / scale;
-        float x2 = roi[2] / scale;
-        float y2 = roi[3] / scale;
-
-        float pb_w = x2 - x1 + 1;
-        float pb_h = y2 - y1 + 1;
-
-        // apply bbox regression
-        float dx = bbox_pred[label * 4];
-        float dy = bbox_pred[label * 4 + 1];
-        float dw = bbox_pred[label * 4 + 2];
-        float dh = bbox_pred[label * 4 + 3];
-
-        float cx = x1 + pb_w * 0.5f;
-        float cy = y1 + pb_h * 0.5f;
-
-        float obj_cx = cx + pb_w * dx;
-        float obj_cy = cy + pb_h * dy;
-
-        float obj_w = pb_w * exp(dw);
-        float obj_h = pb_h * exp(dh);
-
-        float obj_x1 = obj_cx - obj_w * 0.5f;
-        float obj_y1 = obj_cy - obj_h * 0.5f;
-        float obj_x2 = obj_cx + obj_w * 0.5f;
-        float obj_y2 = obj_cy + obj_h * 0.5f;
-
-        // clip
-        obj_x1 = std::max(std::min(obj_x1, (float)(bgr.cols - 1)), 0.f);
-        obj_y1 = std::max(std::min(obj_y1, (float)(bgr.rows - 1)), 0.f);
-        obj_x2 = std::max(std::min(obj_x2, (float)(bgr.cols - 1)), 0.f);
-        obj_y2 = std::max(std::min(obj_y2, (float)(bgr.rows - 1)), 0.f);
-
-        // append object
-        Object obj;
-        obj.rect = cv::Rect_<float>(obj_x1, obj_y1, obj_x2 - obj_x1 + 1, obj_y2 - obj_y1 + 1);
-        obj.label = label;
-        obj.prob = score;
-
-        class_candidates[label].push_back(obj);
     }
 
-    // post process
-    objects.clear();
-    for (int i = 0; i < (int)class_candidates.size(); i++)
-    {
-        std::vector<Object>& candidates = class_candidates[i];
-
-        qsort_descent_inplace(candidates);
-
-        std::vector<int> picked;
-        nms_sorted_bboxes(candidates, picked, nms_threshold);
-
-        for (int j = 0; j < (int)picked.size(); j++)
-        {
-            int z = picked[j];
-            objects.push_back(candidates[z]);
-        }
-    }
-
-    qsort_descent_inplace(objects);
-
-    if (max_per_image > 0 && max_per_image < objects.size())
-    {
-        objects.resize(max_per_image);
-    }
+    fprintf(stderr, "End-to-end time: %.4f\n", infer_time);
 
     return 0;
 }
 
-static void draw_objects(const cv::Mat& bgr, const std::vector<Object>& objects)
+
+static int detect_run1(std::vector<cv::Mat> bgrs)
 {
-    static const char* class_names[] = {"background",
-                                        "aeroplane", "bicycle", "bird", "boat",
-                                        "bottle", "bus", "car", "cat", "chair",
-                                        "cow", "diningtable", "dog", "horse",
-                                        "motorbike", "person", "pottedplant",
-                                        "sheep", "sofa", "train", "tvmonitor"
-                                       };
+    ncnn::Net fasterrcnn;
 
-    cv::Mat image = bgr.clone();
+    fasterrcnn.opt.use_vulkan_compute = true;
 
-    for (size_t i = 0; i < objects.size(); i++)
-    {
-        const Object& obj = objects[i];
+    // original pretrained model from https://github.com/rbgirshick/py-faster-rcnn
+    // py-faster-rcnn/models/pascal_voc/ZF/faster_rcnn_alt_opt/faster_rcnn_test.pt
+    // https://dl.dropboxusercontent.com/s/o6ii098bu51d139/faster_rcnn_models.tgz?dl=0
+    // ZF_faster_rcnn_final.caffemodel
+    // the ncnn model https://github.com/nihui/ncnn-assets/tree/master/models
+    fasterrcnn.load_param("../../examples/ZF_faster_rcnn_final.param");
+    fasterrcnn.load_model("../../examples/ZF_faster_rcnn_final.bin");
 
-        fprintf(stderr, "%d = %.5f at %.2f %.2f %.2f x %.2f\n", obj.label, obj.prob,
-                obj.rect.x, obj.rect.y, obj.rect.width, obj.rect.height);
 
-        cv::rectangle(image, obj.rect, cv::Scalar(255, 0, 0));
+    // hyper parameters taken from
+    // py-faster-rcnn/lib/fast_rcnn/config.py
+    // py-faster-rcnn/lib/fast_rcnn/test.py
+    const int target_size = 600; // __C.TEST.SCALES
+    double infer_time = 0.0;
 
-        char text[256];
-        sprintf(text, "%s %.1f%%", class_names[obj.label], obj.prob * 100);
+    for (int c =0; c <bgrs.size()-1; c++){
+        double start = ncnn::get_current_time();
+        double end = ncnn::get_current_time();
+//        double infer_time = 0;
 
-        int baseLine = 0;
-        cv::Size label_size = cv::getTextSize(text, cv::FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
+        // scale to target detect size
+        auto bgr = bgrs[c];
 
-        int x = obj.rect.x;
-        int y = obj.rect.y - label_size.height - baseLine;
-        if (y < 0)
-            y = 0;
-        if (x + label_size.width > image.cols)
-            x = image.cols - label_size.width;
+        int w = bgr.cols;
+        int h = bgr.rows;
+        float scale = 1.f;
+        if (w < h)
+        {
+            scale = (float)target_size / w;
+            w = target_size;
+            h = h * scale;
+        }
+        else
+        {
+            scale = (float)target_size / h;
+            h = target_size;
+            w = w * scale;
+        }
 
-        cv::rectangle(image, cv::Rect(cv::Point(x, y), cv::Size(label_size.width, label_size.height + baseLine)),
-                      cv::Scalar(255, 255, 255), -1);
+        ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, bgr.cols, bgr.rows, w, h);
 
-        cv::putText(image, text, cv::Point(x, y + label_size.height),
-                    cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0));
+//        const float mean_vals[3] = {0.f, 0.f, 0.f};
+        const float mean_vals[3] = {123.68f, 116.78f, 103.94f};
+//        const float mean_vals[3] = {102.9801f, 115.9465f, 122.7717f};
+        in.substract_mean_normalize(mean_vals, 0);
+
+        ncnn::Mat im_info(3);
+        im_info[0] = h;
+        im_info[1] = w;
+        im_info[2] = scale;
+
+        // step1, extract feature and all rois
+        ncnn::Extractor ex1 = fasterrcnn.create_extractor();
+
+        ex1.input("data", in);
+        ex1.input("im_info", im_info);
+
+        ncnn::Mat conv5_relu5; // feature
+        ncnn::Mat rois;        // all rois
+        start = ncnn::get_current_time();
+        ex1.extract("conv5_relu5", conv5_relu5);
+        ex1.extract("rois", rois);
+        end = ncnn::get_current_time();
+        infer_time += end - start;
+//
+//        // step2, extract bbox and score for each roi
+        std::vector<std::vector<Object> > class_candidates;
+        for (int i = 0; i < rois.c; i++)
+        {
+            ncnn::Extractor ex2 = fasterrcnn.create_extractor();
+
+            ncnn::Mat roi = rois.channel(i); // get single roi
+            ex2.input("conv5_relu5", conv5_relu5);
+            ex2.input("rois", roi);
+
+            ncnn::Mat bbox_pred;
+            ncnn::Mat cls_prob;
+            start = ncnn::get_current_time();
+            ex2.extract("bbox_pred", bbox_pred);
+            ex2.extract("cls_prob", cls_prob);
+            end = ncnn::get_current_time();
+            infer_time += end - start;
+
+        }
+//        fprintf(stderr, "\n");
+        fprintf(stderr, "\t%.2f\n", infer_time / (c+1));
     }
+    fprintf(stderr, "%.2f\n", infer_time / (bgrs.size()-1));
+    //    sleep for 3s
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
-    cv::imshow("image", image);
-    cv::waitKey(0);
+    return 0;
 }
 
-int main(int argc, char** argv)
+static int detect_run2(std::vector<cv::Mat> bgrs)
+{
+    ncnn::Net fasterrcnn;
+
+    fasterrcnn.opt.use_vulkan_compute = true;
+
+    // original pretrained model from https://github.com/rbgirshick/py-faster-rcnn
+    // py-faster-rcnn/models/pascal_voc/ZF/faster_rcnn_alt_opt/faster_rcnn_test.pt
+    // https://dl.dropboxusercontent.com/s/o6ii098bu51d139/faster_rcnn_models.tgz?dl=0
+    // ZF_faster_rcnn_final.caffemodel
+    // the ncnn model https://github.com/nihui/ncnn-assets/tree/master/models
+    fasterrcnn.load_param("../../examples/ZF_faster_rcnn_final.param");
+    fasterrcnn.load_model("../../examples/ZF_faster_rcnn_final.bin");
+
+
+    // hyper parameters taken from
+    // py-faster-rcnn/lib/fast_rcnn/config.py
+    // py-faster-rcnn/lib/fast_rcnn/test.py
+    const int target_size = 600; // __C.TEST.SCALES
+    double infer_time = 0.0;
+
+    for (int c =0; c <bgrs.size()-1; c++){
+        double start = ncnn::get_current_time();
+        double end = ncnn::get_current_time();
+        //        double infer_time = 0;
+
+        // scale to target detect size
+        auto bgr = bgrs[c];
+
+        int w = bgr.cols;
+        int h = bgr.rows;
+        float scale = 1.f;
+        if (w < h)
+        {
+            scale = (float)target_size / w;
+            w = target_size;
+            h = h * scale;
+        }
+        else
+        {
+            scale = (float)target_size / h;
+            h = target_size;
+            w = w * scale;
+        }
+
+        ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, bgr.cols, bgr.rows, w, h);
+
+//        const float mean_vals[3] = {0.f, 0.f, 0.f};
+//        in.substract_mean_normalize(mean_vals, 0);
+
+        const float mean_vals[3] = {102.9801f, 115.9465f, 122.7717f};
+        in.substract_mean_normalize(mean_vals, 0);
+
+        ncnn::Mat im_info(3);
+        im_info[0] = h;
+        im_info[1] = w;
+        im_info[2] = scale;
+
+        // step1, extract feature and all rois
+        ncnn::Extractor ex1 = fasterrcnn.create_extractor();
+
+        ex1.input("data", in);
+        ex1.input("im_info", im_info);
+
+        ncnn::Mat conv5_relu5; // feature
+        ncnn::Mat rois;        // all rois
+        start = ncnn::get_current_time();
+        ex1.extract("conv5_relu5", conv5_relu5);
+        ex1.extract("rois", rois);
+        end = ncnn::get_current_time();
+        infer_time += end - start;
+        //
+        //        // step2, extract bbox and score for each roi
+        std::vector<std::vector<Object> > class_candidates;
+        for (int i = 0; i < rois.c; i++)
+        {
+            ncnn::Extractor ex2 = fasterrcnn.create_extractor();
+
+            ncnn::Mat roi = rois.channel(i); // get single roi
+            ex2.input("conv5_relu5", conv5_relu5);
+            ex2.input("rois", roi);
+
+            ncnn::Mat bbox_pred;
+            ncnn::Mat cls_prob;
+            start = ncnn::get_current_time();
+            ex2.extract("bbox_pred", bbox_pred);
+            ex2.extract("cls_prob", cls_prob);
+            end = ncnn::get_current_time();
+            infer_time += end - start;
+
+        }
+        //        fprintf(stderr, "\n");
+                fprintf(stderr, "\t%.2f\n", infer_time / (c+1));
+    }
+    fprintf(stderr, "%.2f\n", infer_time / (bgrs.size()-1));
+    //    sleep for 3s
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
+    return 0;
+}
+
+int main1(int argc, char** argv)
 {
     if (argc != 2)
     {
@@ -349,10 +397,146 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    std::vector<Object> objects;
-    detect_fasterrcnn(m, objects);
+//    std::vector<Object> objects;
+//    detect_fasterrcnn(m, objects);
 
-    draw_objects(m, objects);
+//    draw_objects(m, objects);
 
+    return 0;
+}
+
+
+int main2(int argc, char** argv)
+{
+    std::vector<cv::Mat> ms;
+    cv::VideoCapture capture;
+    cv::Mat frame;
+//    capture.open("../../images/all_black_video.mp4");
+//    capture.open("../../images/all_number.mp4");
+//        capture.open("../../images/all_imagenet_mini.mp4");
+//        capture.open("../../images/cts/BreastMRI_ct.mp4");
+        capture.open("/Users/kr/Downloads/YUP++/camera_moving/WindmillFarm/WindmillFarm_moving_cam_10.mp4");
+    if(!capture.isOpened()){
+        printf("can not open ...\n");
+        return -1;
+
+    }
+
+    int c = 0;
+    while (1){
+        ms.emplace_back(cv::Mat());
+        capture.read(ms[c]);
+        if (ms[c].empty())
+            break;
+        //        cv::imshow("w", ms[c]);
+        //        cv::waitKey(0); // waits to display frame
+        c += 1;
+    }
+
+    detect_run1(ms);
+    capture.release();
+    ms.clear();
+
+    return 0;
+}
+
+
+int main(int argc, char** argv)
+{
+    //    std::string temp;
+    //    temp.c_str()
+
+    std::vector<std::string> video_dataset = {
+//        "../../images/all_black_video.mp4",
+//        "../../images/all_coco_1000_images.mp4",
+        "../../images/all_biaoshi.mp4",
+//        "../../images/all_imagenet_mini.mp4",
+//        "../../images/cts/BreastMRI_ct.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/FallingTrees/FallingTrees_moving_cam_10.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/WindmillFarm/WindmillFarm_moving_cam_10.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/Fountain/Fountain_moving_cam_21.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/WavingFlags/WavingFlags_moving_cam_1.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/Ocean/Ocean_moving_cam_13.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/BuildingCollapse/BuildingCollapse_moving_cam_3.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/Escalator/Escalator_moving_cam_6.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/Waterfall/Waterfall_moving_cam_10.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/Highway/Highway_moving_cam_11.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/Fireworks/Fireworks_moving_cam_18.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/Railway/Railway_moving_cam_23.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/Marathon/Marathon_moving_cam_4.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/LightningStorm/LightningStorm_moving_cam_6.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/ForestFire/ForestFire_moving_cam_17.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/SkyClouds/SkyClouds_moving_cam_19.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/Street/Street_moving_cam_16.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/Snowing/Snowing_moving_cam_22.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/Beach/Beach_moving_cam_4.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/Elevator/Elevator_moving_cam_23.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_moving/RushingRiver/RushingRiver_moving_cam_10.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/FallingTrees/FallingTrees_static_cam_1.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/WindmillFarm/WindmillFarm_static_cam_19.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/Fountain/Fountain_static_cam_10.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/WavingFlags/WavingFlags_static_cam_2.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/Ocean/Ocean_static_cam_2.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/BuildingCollapse/BuildingCollapse_static_cam_3.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/Escalator/Escalator_static_cam_30.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/Waterfall/Waterfall_static_cam_9.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/Highway/Highway_static_cam_23.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/Fireworks/Fireworks_static_cam_5.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/Railway/Railway_static_cam_30.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/Marathon/Marathon_static_cam_27.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/LightningStorm/LightningStorm_static_cam_14.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/ForestFire/ForestFire_static_cam_28.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/SkyClouds/SkyClouds_static_cam_2.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/Street/Street_static_cam_26.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/Snowing/Snowing_static_cam_24.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/Beach/Beach_static_cam_12.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/Elevator/Elevator_static_cam_23.mp4",
+//        "/Users/kr/Downloads/YUP++/camera_stationary/RushingRiver/RushingRiver_static_cam_6.mp4"
+    };
+
+
+    for (const auto& video_name: video_dataset){
+        fprintf(stderr, "%s \n", video_name.c_str());
+        std::vector<cv::Mat> ms;
+        cv::VideoCapture capture;
+        cv::Mat frame;
+        //    capture.open("../../images/all_black_video.mp4");
+        //    capture.open("../../images/all_number.mp4");
+
+        //    capture.open("../../images/cts/BreastMRI_ct.mp4");
+        //    capture.open("../../images/all_imagenet_mini.mp4");
+        //    capture.open("../../images/cts/Head_ct.mp4");
+        //    capture.open("/Users/kr/Downloads/YUP++/camera_moving/Fireworks/Fireworks_moving_cam_27.mp4");
+        //    capture.open("/Users/kr/Downloads/YUP++/camera_stationary/Elevator/Elevator_static_cam_1.mp4");
+        capture.open(video_name);
+        if(!capture.isOpened())
+        {
+            printf("can not open ...\n");
+            return -1;
+
+        }
+
+        int c = 0;
+        while (1)
+        {
+            ms.emplace_back(cv::Mat());
+            capture.read(ms[c]);
+            if (ms[c].empty())
+                break;
+            //        cv::imshow("w", ms[c]);
+            //        cv::waitKey(0); // waits to display frame
+            c += 1;
+        }
+
+//        fprintf(stderr, "run1\n");
+//        detect_run1(ms);
+
+//        fprintf(stderr, "run2\n");
+        detect_run2(ms);
+        capture.release();
+        ms.clear();
+
+
+    }
     return 0;
 }

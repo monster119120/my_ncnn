@@ -104,6 +104,9 @@ public:
 public:
     // implement inference
     // return 0 if success
+    virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt) const;
+    virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt) const;
+
     virtual int forward(const std::vector<Mat>& bottom_blobs, std::vector<Mat>& top_blobs, const Option& opt);
     virtual int forward(const Mat& bottom_blob, Mat& top_blob, const Option& opt);
 

@@ -1,0 +1,379 @@
+第[0]帧 time: 4667.613037
+第[1]帧 time: 4196.225098
+第[2]帧 time: 4236.566162
+第[3]帧 time: 3933.219971
+第[4]帧 time: 3556.029053
+第[5]帧 time: 4066.993896
+第[6]帧 time: 4147.781982
+第[7]帧 time: 4134.112061
+第[8]帧 time: 4141.356934
+第[9]帧 time: 4075.503906
+第[10]帧 time: 3930.475098
+第[11]帧 time: 3944.066895
+第[12]帧 time: 3929.763916
+第[13]帧 time: 3940.637939
+第[14]帧 time: 3946.266846
+第[15]帧 time: 3930.481201
+第[16]帧 time: 3550.348145
+第[17]帧 time: 3932.729980
+第[18]帧 time: 4062.547852
+第[19]帧 time: 4097.718018
+第[20]帧 time: 3968.502930
+第[21]帧 time: 4299.717041
+第[22]帧 time: 3962.633057
+第[23]帧 time: 3933.416016
+第[24]帧 time: 3983.794189
+第[25]帧 time: 3871.312012
+第[26]帧 time: 3940.437988
+
+
+
+
+squeezenet all black video
+4796.794922
+3235.697021
+2940.831055
+2949.173096
+2804.319092
+2942.406006
+2936.234131
+2943.950928
+2946.068848
+
+squeezenet static mlsys
+4738.869873
+4089.744873
+4389.915039
+4257.046143
+4440.413086
+4256.568115
+4371.645020
+4303.488037
+4397.358887
+4381.708008
+4361.062012
+
+
+
+
+squeezenet fire mlsys
+4723.972168
+3872.479004
+4063.706055
+4558.414795
+3999.604004
+4604.809082
+4540.645020
+4563.258057
+4505.573975
+4565.572998
+4518.605225
+4507.727051
+4599.257812
+4595.426025
+4505.333008
+4632.092041
+4406.895996
+4545.002930
+4450.359863
+4504.223145
+4613.427979
+4593.730957
+4615.068115
+4575.470947
+4588.480957
+4545.488037
+4568.892822
+4646.812012
+4547.406982
+4538.537109
+4589.728027
+4711.531982
+4292.933105
+4767.308105
+4626.657959
+4668.695068
+4706.992920
+4740.789062
+4169.175049
+4755.562012
+4715.310059
+4713.632080
+4699.156982
+4655.336914
+4171.400879
+4658.932129
+4656.698975
+4634.564941
+4603.940918
+4663.704834
+4345.238037
+4759.342041
+4616.641846
+4596.347900
+4681.325928
+4664.822998
+4363.033936
+4696.916016
+4612.715088
+4623.024902
+4600.048828
+4656.998047
+4367.215088
+4747.134033
+4576.070068
+4676.346924
+4598.746094
+4666.375977
+4058.958984
+4580.890137
+4596.523926
+4622.510986
+4732.000000
+4763.395020
+4276.300049
+4781.710938
+4760.172119
+4759.570068
+4748.014893
+4694.221924
+4427.160889
+4767.494141
+4762.201904
+4752.609131
+4727.583984
+4766.524902
+4535.495117
+4782.724854
+4745.010010
+4751.550049
+4740.407959
+4724.781982
+4440.642090
+4708.006104
+4723.499023
+4605.193115
+4414.281982
+4460.667969
+4446.621826
+4640.623047
+4498.533936
+4490.588135
+4483.189209
+4683.526123
+4632.294922
+4217.105957
+4695.319092
+4611.170898
+4763.803955
+4770.810059
+4759.208984
+4728.901123
+4747.642090
+4705.988037
+4731.150146
+4759.871826
+4751.519043
+4259.121094
+4770.796143
+4723.634033
+4742.896973
+4722.124023
+4711.291992
+4728.468994
+4755.637939
+4541.493896
+4545.627930
+4515.454102
+4478.023926
+4293.237061
+4620.427979
+4358.715820
+4431.461182
+4485.909912
+4475.489990
+4644.690918
+4727.482178
+4712.013184
+4704.175049
+4677.783936
+4745.563965
+4308.317871
+4775.447021
+4751.317871
+4767.417969
+4680.660156
+4714.079102
+4769.880127
+4774.385010
+4774.990967
+4636.618896
+4707.431152
+
+
+squeezenet all yup++ mlsys
+/Users/kr/Desktop/base_ncnn/my_ncnn/cmake-build-debug/examples/squeezenet
+/Users/kr/Downloads/YUP++/camera_stationary/WindmillFarm/WindmillFarm_static_cam_19.mp4  4595.54
+/Users/kr/Downloads/YUP++/camera_stationary/FallingTrees/FallingTrees_static_cam_1.mp4  4105.79
+/Users/kr/Downloads/YUP++/camera_stationary/Fountain/Fountain_static_cam_10.mp4  4553.60
+/Users/kr/Downloads/YUP++/camera_stationary/WavingFlags/WavingFlags_static_cam_2.mp4  4011.51
+/Users/kr/Downloads/YUP++/camera_stationary/Ocean/Ocean_static_cam_2.mp4  4780.37
+/Users/kr/Downloads/YUP++/camera_stationary/BuildingCollapse/BuildingCollapse_static_cam_3.mp4  4196.04
+/Users/kr/Downloads/YUP++/camera_stationary/Escalator/Escalator_static_cam_30.mp4  4409.34
+/Users/kr/Downloads/YUP++/camera_stationary/Waterfall/Waterfall_static_cam_9.mp4  4334.33
+/Users/kr/Downloads/YUP++/camera_stationary/Highway/Highway_static_cam_23.mp4  4485.20
+/Users/kr/Downloads/YUP++/camera_stationary/Fireworks/Fireworks_static_cam_5.mp4  4127.20
+/Users/kr/Downloads/YUP++/camera_stationary/Railway/Railway_static_cam_30.mp4  4284.37
+/Users/kr/Downloads/YUP++/camera_stationary/Marathon/Marathon_static_cam_27.mp4  4384.95
+/Users/kr/Downloads/YUP++/camera_stationary/LightningStorm/LightningStorm_static_cam_14.mp4  3712.27
+/Users/kr/Downloads/YUP++/camera_stationary/ForestFire/ForestFire_static_cam_28.mp4  4678.54
+/Users/kr/Downloads/YUP++/camera_stationary/SkyClouds/SkyClouds_static_cam_2.mp4  4536.92
+/Users/kr/Downloads/YUP++/camera_stationary/Street/Street_static_cam_26.mp4  4290.26
+/Users/kr/Downloads/YUP++/camera_stationary/Snowing/Snowing_static_cam_24.mp4  4608.64
+/Users/kr/Downloads/YUP++/camera_stationary/Beach/Beach_static_cam_12.mp4  4341.92
+/Users/kr/Downloads/YUP++/camera_stationary/Elevator/Elevator_static_cam_23.mp4  4276.58
+/Users/kr/Downloads/YUP++/camera_stationary/RushingRiver/RushingRiver_static_cam_6.mp4  4543.75
+/Users/kr/Downloads/YUP++/camera_moving/FallingTrees/FallingTrees_moving_cam_10.mp4  4720.80
+/Users/kr/Downloads/YUP++/camera_moving/WindmillFarm/WindmillFarm_moving_cam_10.mp4  4183.92
+/Users/kr/Downloads/YUP++/camera_moving/Fountain/Fountain_moving_cam_21.mp4  3866.38
+/Users/kr/Downloads/YUP++/camera_moving/WavingFlags/WavingFlags_moving_cam_1.mp4  4205.01
+/Users/kr/Downloads/YUP++/camera_moving/Ocean/Ocean_moving_cam_13.mp4  4471.79
+/Users/kr/Downloads/YUP++/camera_moving/BuildingCollapse/BuildingCollapse_moving_cam_3.mp4  4611.09
+/Users/kr/Downloads/YUP++/camera_moving/Escalator/Escalator_moving_cam_6.mp4  4293.33
+/Users/kr/Downloads/YUP++/camera_moving/Waterfall/Waterfall_moving_cam_10.mp4  4679.58
+/Users/kr/Downloads/YUP++/camera_moving/Highway/Highway_moving_cam_11.mp4  4700.16
+/Users/kr/Downloads/YUP++/camera_moving/Fireworks/Fireworks_moving_cam_18.mp4  4261.51
+/Users/kr/Downloads/YUP++/camera_moving/Railway/Railway_moving_cam_23.mp4  4406.04
+/Users/kr/Downloads/YUP++/camera_moving/Marathon/Marathon_moving_cam_4.mp4  4708.97
+/Users/kr/Downloads/YUP++/camera_moving/LightningStorm/LightningStorm_moving_cam_6.mp4  4434.27
+/Users/kr/Downloads/YUP++/camera_moving/ForestFire/ForestFire_moving_cam_17.mp4  4164.38
+/Users/kr/Downloads/YUP++/camera_moving/SkyClouds/SkyClouds_moving_cam_19.mp4  4385.48
+/Users/kr/Downloads/YUP++/camera_moving/Street/Street_moving_cam_16.mp4  4671.26
+/Users/kr/Downloads/YUP++/camera_moving/Snowing/Snowing_moving_cam_22.mp4  4707.57
+/Users/kr/Downloads/YUP++/camera_moving/Beach/Beach_moving_cam_4.mp4  4557.13
+/Users/kr/Downloads/YUP++/camera_moving/Elevator/Elevator_moving_cam_23.mp4  4408.32
+/Users/kr/Downloads/YUP++/camera_moving/RushingRiver/RushingRiver_moving_cam_10.mp4  4717.76
+
+
+
+
+每隔c+=2取一帧
+/Users/kr/Desktop/base_ncnn/my_ncnn/cmake-build-debug/examples/squeezenet
+/Users/kr/Downloads/YUP++/camera_moving/WindmillFarm/WindmillFarm_moving_cam_10.mp4  4449.49
+/Users/kr/Downloads/YUP++/camera_moving/Fountain/Fountain_moving_cam_21.mp4  4339.53
+/Users/kr/Downloads/YUP++/camera_moving/WavingFlags/WavingFlags_moving_cam_1.mp4  4457.00
+/Users/kr/Downloads/YUP++/camera_moving/Ocean/Ocean_moving_cam_13.mp4  4641.26
+/Users/kr/Downloads/YUP++/camera_moving/BuildingCollapse/BuildingCollapse_moving_cam_3.mp4  4555.16
+/Users/kr/Downloads/YUP++/camera_moving/Escalator/Escalator_moving_cam_6.mp4  4451.66
+/Users/kr/Downloads/YUP++/camera_moving/Waterfall/Waterfall_moving_cam_10.mp4  4711.10
+/Users/kr/Downloads/YUP++/camera_moving/Highway/Highway_moving_cam_11.mp4  4648.37
+/Users/kr/Downloads/YUP++/camera_moving/Fireworks/Fireworks_moving_cam_18.mp4  4288.44
+/Users/kr/Downloads/YUP++/camera_moving/Railway/Railway_moving_cam_23.mp4  4659.99
+/Users/kr/Downloads/YUP++/camera_moving/Marathon/Marathon_moving_cam_4.mp4  4708.48
+/Users/kr/Downloads/YUP++/camera_moving/LightningStorm/LightningStorm_moving_cam_6.mp4  4627.56
+/Users/kr/Downloads/YUP++/camera_moving/ForestFire/ForestFire_moving_cam_17.mp4  4293.50
+/Users/kr/Downloads/YUP++/camera_moving/SkyClouds/SkyClouds_moving_cam_19.mp4  4494.20
+/Users/kr/Downloads/YUP++/camera_moving/Street/Street_moving_cam_16.mp4  4688.38
+/Users/kr/Downloads/YUP++/camera_moving/Snowing/Snowing_moving_cam_22.mp4  4682.10
+/Users/kr/Downloads/YUP++/camera_moving/Beach/Beach_moving_cam_4.mp4  4613.57
+/Users/kr/Downloads/YUP++/camera_moving/Elevator/Elevator_moving_cam_23.mp4  4606.32
+/Users/kr/Downloads/YUP++/camera_moving/RushingRiver/RushingRiver_moving_cam_10.mp4  4732.05
+
+
+每隔c+=3取一帧
+/Users/kr/Desktop/base_ncnn/my_ncnn/cmake-build-debug/examples/squeezenet
+/Users/kr/Downloads/YUP++/camera_moving/WindmillFarm/WindmillFarm_moving_cam_10.mp4  4547.26
+/Users/kr/Downloads/YUP++/camera_moving/Fountain/Fountain_moving_cam_21.mp4  4740.57
+/Users/kr/Downloads/YUP++/camera_moving/WavingFlags/WavingFlags_moving_cam_1.mp4  4529.43
+/Users/kr/Downloads/YUP++/camera_moving/Ocean/Ocean_moving_cam_13.mp4  4694.82
+/Users/kr/Downloads/YUP++/camera_moving/BuildingCollapse/BuildingCollapse_moving_cam_3.mp4  4599.75
+/Users/kr/Downloads/YUP++/camera_moving/Escalator/Escalator_moving_cam_6.mp4  4554.52
+/Users/kr/Downloads/YUP++/camera_moving/Waterfall/Waterfall_moving_cam_10.mp4  4728.79
+/Users/kr/Downloads/YUP++/camera_moving/Highway/Highway_moving_cam_11.mp4  4720.90
+/Users/kr/Downloads/YUP++/camera_moving/Fireworks/Fireworks_moving_cam_18.mp4  4371.40
+/Users/kr/Downloads/YUP++/camera_moving/Railway/Railway_moving_cam_23.mp4  4707.11
+/Users/kr/Downloads/YUP++/camera_moving/Marathon/Marathon_moving_cam_4.mp4  4723.63
+/Users/kr/Downloads/YUP++/camera_moving/LightningStorm/LightningStorm_moving_cam_6.mp4  4697.10
+/Users/kr/Downloads/YUP++/camera_moving/ForestFire/ForestFire_moving_cam_17.mp4  4394.61
+/Users/kr/Downloads/YUP++/camera_moving/SkyClouds/SkyClouds_moving_cam_19.mp4  4618.66
+/Users/kr/Downloads/YUP++/camera_moving/Street/Street_moving_cam_16.mp4  4716.10
+/Users/kr/Downloads/YUP++/camera_moving/Snowing/Snowing_moving_cam_22.mp4  4697.30
+/Users/kr/Downloads/YUP++/camera_moving/Beach/Beach_moving_cam_4.mp4  4657.08
+/Users/kr/Downloads/YUP++/camera_moving/Elevator/Elevator_moving_cam_23.mp4  4689.84
+/Users/kr/Downloads/YUP++/camera_moving/RushingRiver/RushingRiver_moving_cam_10.mp4  4739.79
+
+
+每隔c+=4取一帧
+/Users/kr/Desktop/base_ncnn/my_ncnn/cmake-build-debug/examples/squeezenet
+/Users/kr/Downloads/YUP++/camera_moving/WindmillFarm/WindmillFarm_moving_cam_10.mp4  4545.28
+/Users/kr/Downloads/YUP++/camera_moving/Fountain/Fountain_moving_cam_21.mp4  4725.27
+/Users/kr/Downloads/YUP++/camera_moving/WavingFlags/WavingFlags_moving_cam_1.mp4  4589.82
+/Users/kr/Downloads/YUP++/camera_moving/Ocean/Ocean_moving_cam_13.mp4  4716.99
+/Users/kr/Downloads/YUP++/camera_moving/BuildingCollapse/BuildingCollapse_moving_cam_3.mp4  4622.44
+/Users/kr/Downloads/YUP++/camera_moving/Escalator/Escalator_moving_cam_6.mp4  4611.48
+/Users/kr/Downloads/YUP++/camera_moving/Waterfall/Waterfall_moving_cam_10.mp4  4735.22
+/Users/kr/Downloads/YUP++/camera_moving/Highway/Highway_moving_cam_11.mp4  4730.10
+/Users/kr/Downloads/YUP++/camera_moving/Fireworks/Fireworks_moving_cam_18.mp4  4446.13
+/Users/kr/Downloads/YUP++/camera_moving/Railway/Railway_moving_cam_23.mp4  4724.33
+/Users/kr/Downloads/YUP++/camera_moving/Marathon/Marathon_moving_cam_4.mp4  4733.98
+/Users/kr/Downloads/YUP++/camera_moving/LightningStorm/LightningStorm_moving_cam_6.mp4  4711.87
+/Users/kr/Downloads/YUP++/camera_moving/ForestFire/ForestFire_moving_cam_17.mp4  4475.87
+/Users/kr/Downloads/YUP++/camera_moving/SkyClouds/SkyClouds_moving_cam_19.mp4  4643.13
+/Users/kr/Downloads/YUP++/camera_moving/Street/Street_moving_cam_16.mp4  4723.65
+/Users/kr/Downloads/YUP++/camera_moving/Snowing/Snowing_moving_cam_22.mp4  4717.13
+/Users/kr/Downloads/YUP++/camera_moving/Beach/Beach_moving_cam_4.mp4  4684.81
+/Users/kr/Downloads/YUP++/camera_moving/Elevator/Elevator_moving_cam_23.mp4  4711.18
+/Users/kr/Downloads/YUP++/camera_moving/RushingRiver/RushingRiver_moving_cam_10.mp4  4752.21
+
+
+每隔c+=5取一帧
+/Users/kr/Desktop/base_ncnn/my_ncnn/cmake-build-debug/examples/squeezenet
+/Users/kr/Downloads/YUP++/camera_moving/WindmillFarm/WindmillFarm_moving_cam_10.mp4  4584.33
+/Users/kr/Downloads/YUP++/camera_moving/Fountain/Fountain_moving_cam_21.mp4  4714.66
+/Users/kr/Downloads/YUP++/camera_moving/WavingFlags/WavingFlags_moving_cam_1.mp4  4614.68
+/Users/kr/Downloads/YUP++/camera_moving/Ocean/Ocean_moving_cam_13.mp4  4725.99
+/Users/kr/Downloads/YUP++/camera_moving/BuildingCollapse/BuildingCollapse_moving_cam_3.mp4  4645.61
+/Users/kr/Downloads/YUP++/camera_moving/Escalator/Escalator_moving_cam_6.mp4  4641.23
+/Users/kr/Downloads/YUP++/camera_moving/Waterfall/Waterfall_moving_cam_10.mp4  4743.53
+/Users/kr/Downloads/YUP++/camera_moving/Highway/Highway_moving_cam_11.mp4  4734.02
+/Users/kr/Downloads/YUP++/camera_moving/Fireworks/Fireworks_moving_cam_18.mp4  4499.01
+/Users/kr/Downloads/YUP++/camera_moving/Railway/Railway_moving_cam_23.mp4  4731.73
+/Users/kr/Downloads/YUP++/camera_moving/Marathon/Marathon_moving_cam_4.mp4  4742.73
+/Users/kr/Downloads/YUP++/camera_moving/LightningStorm/LightningStorm_moving_cam_6.mp4  4722.27
+/Users/kr/Downloads/YUP++/camera_moving/ForestFire/ForestFire_moving_cam_17.mp4  4534.88
+/Users/kr/Downloads/YUP++/camera_moving/SkyClouds/SkyClouds_moving_cam_19.mp4  4673.35
+/Users/kr/Downloads/YUP++/camera_moving/Street/Street_moving_cam_16.mp4  4735.44
+/Users/kr/Downloads/YUP++/camera_moving/Snowing/Snowing_moving_cam_22.mp4  4726.61
+/Users/kr/Downloads/YUP++/camera_moving/Beach/Beach_moving_cam_4.mp4  4702.78
+/Users/kr/Downloads/YUP++/camera_moving/Elevator/Elevator_moving_cam_23.mp4  4718.48
+/Users/kr/Downloads/YUP++/camera_moving/RushingRiver/RushingRiver_moving_cam_10.mp4  4748.90
+
+
+每隔c+=6取一帧
+/Users/kr/Desktop/base_ncnn/my_ncnn/cmake-build-debug/examples/squeezenet
+/Users/kr/Downloads/YUP++/camera_moving/WindmillFarm/WindmillFarm_moving_cam_10.mp4  4602.67
+/Users/kr/Downloads/YUP++/camera_moving/Fountain/Fountain_moving_cam_21.mp4  4707.88
+/Users/kr/Downloads/YUP++/camera_moving/WavingFlags/WavingFlags_moving_cam_1.mp4  4631.76
+/Users/kr/Downloads/YUP++/camera_moving/Ocean/Ocean_moving_cam_13.mp4  4730.13
+/Users/kr/Downloads/YUP++/camera_moving/BuildingCollapse/BuildingCollapse_moving_cam_3.mp4  4670.01
+/Users/kr/Downloads/YUP++/camera_moving/Escalator/Escalator_moving_cam_6.mp4  4661.10
+/Users/kr/Downloads/YUP++/camera_moving/Waterfall/Waterfall_moving_cam_10.mp4  4744.73
+/Users/kr/Downloads/YUP++/camera_moving/Highway/Highway_moving_cam_11.mp4  4741.05
+/Users/kr/Downloads/YUP++/camera_moving/Fireworks/Fireworks_moving_cam_18.mp4  4551.94
+/Users/kr/Downloads/YUP++/camera_moving/Railway/Railway_moving_cam_23.mp4  4740.92
+/Users/kr/Downloads/YUP++/camera_moving/Marathon/Marathon_moving_cam_4.mp4  4742.76
+/Users/kr/Downloads/YUP++/camera_moving/LightningStorm/LightningStorm_moving_cam_6.mp4  4732.81
+/Users/kr/Downloads/YUP++/camera_moving/ForestFire/ForestFire_moving_cam_17.mp4  4568.06
+/Users/kr/Downloads/YUP++/camera_moving/SkyClouds/SkyClouds_moving_cam_19.mp4
+
+
+
+tmp
+4650.087891 -> 4701.937866
+3383.894043 -> 4262.589925
+4518.831055 -> 4326.650208
+3539.093994 -> 4169.138965
+4426.727051 -> 4212.070312
+3507.228027 -> 4111.378557
+4339.122803 -> 4139.846588
+

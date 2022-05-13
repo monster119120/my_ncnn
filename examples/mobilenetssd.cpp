@@ -23,6 +23,8 @@
 #endif
 #include <stdio.h>
 #include <vector>
+#include <benchmark.h>
+#include <thread>
 
 struct Object
 {
@@ -81,6 +83,58 @@ static int detect_mobilenet(const cv::Mat& bgr, std::vector<Object>& objects)
     return 0;
 }
 
+static int detect_run(std::vector<cv::Mat> bgrs)
+{
+    ncnn::Net mobilenet;
+
+    mobilenet.opt.use_vulkan_compute = true;
+
+    // model is converted from https://github.com/chuanqi305/MobileNet-SSD
+    // and can be downloaded from https://drive.google.com/open?id=0ByaKLD9QaPtucWk0Y0dha1VVY0U
+    // the ncnn model https://github.com/nihui/ncnn-assets/tree/master/models
+    mobilenet.load_param("../../examples/mobilenet_ssd_voc_ncnn.param");
+    mobilenet.load_model("../../examples/mobilenet_ssd_voc_ncnn.bin");
+
+    const int target_size = 300;
+    double infer_time = 0.0;
+    double start, end;
+
+    for (int c =0; c <bgrs.size()-1; c++){
+        //        double infer_time = 0;
+
+        // scale to target detect size
+        auto bgr = bgrs[c];
+
+        ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, bgr.cols, bgr.rows, target_size, target_size);
+
+//        const float mean_vals[3] = {127.5f, 127.5f, 127.5f};
+//        const float norm_vals[3] = {1.0 / 127.5, 1.0 / 127.5, 1.0 / 127.5};
+//        in.substract_mean_normalize(mean_vals, norm_vals);
+//        const float mean_vals[3] = {123.68f, 116.78f, 103.94f};
+        //        const float mean_vals[3] = {102.9801f, 115.9465f, 122.7717f};
+//        in.substract_mean_normalize(mean_vals, 0);
+
+        ncnn::Extractor ex = mobilenet.create_extractor();
+
+        ex.input("data", in);
+
+        ncnn::Mat out;
+
+        start = ncnn::get_current_time();
+        ex.extract("detection_out", out);
+        end = ncnn::get_current_time();
+        infer_time += end - start;
+
+        fprintf(stderr, " %.2f\n", infer_time / (c+1));
+    }
+
+    fprintf(stderr, "%.2f\n", infer_time / (bgrs.size()-1));
+    //    sleep for 3s
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
+    return 0;
+}
+
 static void draw_objects(const cv::Mat& bgr, const std::vector<Object>& objects)
 {
     static const char* class_names[] = {"background",
@@ -126,7 +180,7 @@ static void draw_objects(const cv::Mat& bgr, const std::vector<Object>& objects)
     cv::waitKey(0);
 }
 
-int main(int argc, char** argv)
+int main2(int argc, char** argv)
 {
     if (argc != 2)
     {
@@ -148,5 +202,102 @@ int main(int argc, char** argv)
 
     draw_objects(m, objects);
 
+
+    return 0;
+}
+
+
+int main(int argc, char** argv)
+{
+    //    std::string temp;
+    //    temp.c_str()
+
+    std::vector<std::string> video_dataset = {
+                "../../images/all_coco_1000_images.mp4",
+//        "../../images/all_biaoshi.mp4",
+        //        "../../images/all_imagenet_mini.mp4",
+        //        "../../images/cts/BreastMRI_ct.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/FallingTrees/FallingTrees_moving_cam_10.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/WindmillFarm/WindmillFarm_moving_cam_10.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/Fountain/Fountain_moving_cam_21.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/WavingFlags/WavingFlags_moving_cam_1.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/Ocean/Ocean_moving_cam_13.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/BuildingCollapse/BuildingCollapse_moving_cam_3.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/Escalator/Escalator_moving_cam_6.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/Waterfall/Waterfall_moving_cam_10.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/Highway/Highway_moving_cam_11.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/Fireworks/Fireworks_moving_cam_18.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/Railway/Railway_moving_cam_23.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/Marathon/Marathon_moving_cam_4.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/LightningStorm/LightningStorm_moving_cam_6.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/ForestFire/ForestFire_moving_cam_17.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/SkyClouds/SkyClouds_moving_cam_19.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/Street/Street_moving_cam_16.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/Snowing/Snowing_moving_cam_22.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/Beach/Beach_moving_cam_4.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/Elevator/Elevator_moving_cam_23.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_moving/RushingRiver/RushingRiver_moving_cam_10.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/FallingTrees/FallingTrees_static_cam_1.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/WindmillFarm/WindmillFarm_static_cam_19.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/Fountain/Fountain_static_cam_10.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/WavingFlags/WavingFlags_static_cam_2.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/Ocean/Ocean_static_cam_2.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/BuildingCollapse/BuildingCollapse_static_cam_3.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/Escalator/Escalator_static_cam_30.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/Waterfall/Waterfall_static_cam_9.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/Highway/Highway_static_cam_23.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/Fireworks/Fireworks_static_cam_5.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/Railway/Railway_static_cam_30.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/Marathon/Marathon_static_cam_27.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/LightningStorm/LightningStorm_static_cam_14.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/ForestFire/ForestFire_static_cam_28.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/SkyClouds/SkyClouds_static_cam_2.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/Street/Street_static_cam_26.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/Snowing/Snowing_static_cam_24.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/Beach/Beach_static_cam_12.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/Elevator/Elevator_static_cam_23.mp4",
+        //        "/Users/kr/Downloads/YUP++/camera_stationary/RushingRiver/RushingRiver_static_cam_6.mp4"
+    };
+
+
+    for (const auto& video_name: video_dataset){
+        fprintf(stderr, "%s \n", video_name.c_str());
+        std::vector<cv::Mat> ms;
+        cv::VideoCapture capture;
+        cv::Mat frame;
+        //    capture.open("../../images/all_black_video.mp4");
+        //    capture.open("../../images/all_number.mp4");
+
+        //    capture.open("../../images/cts/BreastMRI_ct.mp4");
+        //    capture.open("../../images/all_imagenet_mini.mp4");
+        //    capture.open("../../images/cts/Head_ct.mp4");
+        //    capture.open("/Users/kr/Downloads/YUP++/camera_moving/Fireworks/Fireworks_moving_cam_27.mp4");
+        //    capture.open("/Users/kr/Downloads/YUP++/camera_stationary/Elevator/Elevator_static_cam_1.mp4");
+        capture.open(video_name);
+        if(!capture.isOpened())
+        {
+            printf("can not open ...\n");
+            return -1;
+
+        }
+
+        int c = 0;
+        while (1)
+        {
+            ms.emplace_back(cv::Mat());
+            capture.read(ms[c]);
+            if (ms[c].empty())
+                break;
+            //        cv::imshow("w", ms[c]);
+            //        cv::waitKey(0); // waits to display frame
+            c += 1;
+        }
+
+        detect_run(ms);
+        capture.release();
+        ms.clear();
+
+
+    }
     return 0;
 }

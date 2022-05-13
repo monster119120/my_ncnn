@@ -73,6 +73,8 @@ int BatchNorm::forward_inplace(Mat& bottom_top_blob, const Option& opt) const
     // b = slope / sqrt(var)
     // value = b * value + a
 
+    return 0;
+
     int dims = bottom_top_blob.dims;
 
     if (dims == 1)
